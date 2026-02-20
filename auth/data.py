@@ -578,3 +578,27 @@ def create_password_reset_token(email: str, firm_id: str, user_id: str) -> str:
     }
     _atomic_write(_token_path(token), rec)
     return token
+
+def list_all_firms() -> list:
+    """Return summary of all registered firms for the back office."""
+    firms = []
+    if not FIRMS_DIR.exists():
+        return firms
+    for p in FIRMS_DIR.glob("f_*.json"):
+        rec = _read_json(p)
+        if rec:
+            firms.append({
+                "firm_id":     rec.get("firm_id", ""),
+                "firm_name":   rec.get("firm_name", ""),
+                "email_domain":rec.get("email_domain", ""),
+                "status":      rec.get("status", ""),
+                "created_at":  rec.get("created_at", ""),
+                "approved_at": rec.get("approved_at", ""),
+                "user_count":  len(rec.get("users", {})),
+                "country":     rec.get("country", ""),
+            })
+    return sorted(firms, key=lambda x: x.get("created_at", ""), reverse=True)
+
+
+def _firm_path(firm_id: str):
+    return FIRMS_DIR / f"{firm_id}.json"

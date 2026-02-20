@@ -93,6 +93,7 @@ from auth.data import (
     register_domain, register_email, update_user_field,
     get_firm_user_count, record_login, accept_tc,
     create_password_reset_token,
+    list_all_firms,
 )
 from auth.passwords import hash_pw, verify_pw, validate_pw
 from auth.email import (
@@ -734,6 +735,126 @@ def platform_setup():
 </div>
 </body>
 </html>"""
+
+
+
+
+@auth_bp.route("/platform-approve")
+def platform_approve():
+    """Temporary firm approval page — until back office is built."""
+    import os, hashlib
+    from pathlib import Path
+
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return "Not found", 404
+
+    message = ""
+    firms_list = list_all_firms()
+
+    if request.method == "POST":
+        firm_id = request.form.get("firm_id", "")
+        action  = request.form.get("action", "")
+        if firm_id and action in ("approve", "reject"):
+            firm = load_firm(firm_id)
+            if firm:
+                if action == "approve":
+                    from auth.data import load_firm as _lf
+                    firm["status"]      = "trial"
+                    firm["approved_at"] = datetime.datetime.utcnow().isoformat()
+                    from auth.data import _atomic_write, _firm_path
+                    _atomic_write(_firm_path(firm_id), firm)
+                    # Send approval email to admin user
+                    for uid, u in firm.get("users", {}).items():
+                        if u.get("role") == "admin":
+                            send_approval_email(u["email"], u["display_name"], firm["firm_name"])
+                    message = f"✓ {firm['firm_name']} approved — approval email sent."
+                else:
+                    firm["status"] = "rejected"
+                    from auth.data import _atomic_write, _firm_path
+                    _atomic_write(_firm_path(firm_id), firm)
+                    message = f"✗ {firm['firm_name']} rejected."
+            firms_list = list_all_firms()
+
+    rows = ""
+    for f in firms_list:
+        status_colour = {
+            "pending_approval": "#C8A030",
+            "trial":            "#1B4F40",
+            "active":           "#1B4F40",
+            "rejected":         "#C0392B",
+            "suspended":        "#C0392B",
+        }.get(f["status"], "#706C65")
+
+        approve_btn = ""
+        if f["status"] == "pending_approval":
+            approve_btn = f"""
+            <form method="POST" style="display:inline;">
+              <input type="hidden" name="firm_id" value="{f['firm_id']}">
+              <button name="action" value="approve"
+                style="background:#1B4F40;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;margin-right:6px;">
+                Approve
+              </button>
+              <button name="action" value="reject"
+                style="background:#FAEAE8;color:#C0392B;border:1px solid #E8BCBC;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif;">
+                Reject
+              </button>
+            </form>"""
+
+        rows += f"""<tr>
+          <td style="padding:12px 16px;border-bottom:1px solid #EAE6DF;">{f['firm_name']}</td>
+          <td style="padding:12px 16px;border-bottom:1px solid #EAE6DF;font-size:12px;color:#706C65;">{f['email_domain']}</td>
+          <td style="padding:12px 16px;border-bottom:1px solid #EAE6DF;">
+            <span style="color:{status_colour};font-size:12px;font-weight:600;">{f['status'].replace('_',' ').title()}</span>
+          </td>
+          <td style="padding:12px 16px;border-bottom:1px solid #EAE6DF;">{approve_btn}</td>
+        </tr>"""
+
+    msg_html = ""
+    if message:
+        col = "#EAF1ED" if "✓" in message else "#FAEAE8"
+        brd = "#C4DACE" if "✓" in message else "#E8BCBC"
+        txt = "#1B4F40" if "✓" in message else "#C0392B"
+        msg_html = f'''<div style="background:{col};border:1px solid {brd};color:{txt};padding:12px 16px;border-radius:8px;margin-bottom:24px;font-size:13px;font-weight:500;">{message}</div>'''
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mickey — Firm Approvals</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{font-family:'Inter',sans-serif;background:#1B4F40;min-height:100vh;padding:40px 20px;}}
+  .card{{background:#fff;border-radius:16px;padding:36px 40px;max-width:760px;margin:0 auto;}}
+  h1{{font-family:'Lora',serif;font-size:22px;font-weight:500;color:#1B4F40;margin-bottom:4px;}}
+  .sub{{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;margin-bottom:28px;}}
+  table{{width:100%;border-collapse:collapse;background:#fff;border:1px solid #EAE6DF;border-radius:10px;overflow:hidden;}}
+  th{{background:#F5F3EE;padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;border-bottom:1px solid #EAE6DF;}}
+  .empty{{padding:32px;text-align:center;color:#A8A49D;font-size:13px;}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Mickey</h1>
+  <div class="sub">Firm Approvals</div>
+  {msg_html}
+  <table>
+    <thead><tr>
+      <th>Firm</th><th>Domain</th><th>Status</th><th>Action</th>
+    </tr></thead>
+    <tbody>
+      {rows if rows else '<tr><td colspan="4" class="empty">No firms registered yet.</td></tr>'}
+    </tbody>
+  </table>
+  <p style="margin-top:16px;font-size:11px;color:#A8A49D;">
+    <a href="/platform-setup?key=MICKEYSETUP2026" style="color:#1B4F40;">&#8592; Back to setup</a>
+  </p>
+</div>
+</body>
+</html>"""
+
 
 
 # ════════════════════════════════════════════════════════════════
