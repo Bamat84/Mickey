@@ -857,6 +857,55 @@ def platform_approve():
 
 
 
+
+
+@auth_bp.route("/platform-bootstrap")
+def platform_bootstrap():
+    """One-time route to install SSH public key on server."""
+    import os, hashlib
+    from pathlib import Path
+
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return "Not found", 404
+
+    pub_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKXcY6hJ+f1McWnzAWUMsP+fRmgI9qjDku5mS5BmidG mathiasmu@LAPTOP-AH952I21"
+
+    try:
+        ssh_dir        = Path("/root/.ssh")
+        auth_keys_file = ssh_dir / "authorized_keys"
+        ssh_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+        # Only add if not already present
+        existing = auth_keys_file.read_text(encoding="utf-8") if auth_keys_file.exists() else ""
+        if pub_key not in existing:
+            with open(auth_keys_file, "a", encoding="utf-8") as f:
+                f.write("\n" + pub_key + "\n")
+            auth_keys_file.chmod(0o600)
+            result = "SSH key installed successfully. GitHub Actions can now connect."
+        else:
+            result = "SSH key was already installed."
+
+        return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>body{{font-family:Inter,sans-serif;background:#1B4F40;min-height:100vh;display:flex;align-items:center;justify-content:center;}}
+.card{{background:#fff;border-radius:16px;padding:40px 48px;max-width:480px;width:100%;}}
+h2{{color:#1B4F40;margin-bottom:12px;}}p{{color:#706C65;font-size:14px;line-height:1.6;margin-bottom:20px;}}
+.btn{{display:inline-block;background:#1B4F40;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;}}</style>
+</head><body><div class="card">
+<h2>&#10003; {result}</h2>
+<p>You can now push to GitHub and the Deploy Mickey workflow will connect to your server automatically.</p>
+<p>After your next push, check GitHub Actions to confirm the workflow succeeds.</p>
+<a href="/platform-approve?key=MICKEYSETUP2026" class="btn">Go to firm approvals</a>
+</div></body></html>"""
+
+    except Exception as e:
+        return f"Error: {e}", 500
+
+
+
 # ════════════════════════════════════════════════════════════════
 # TEMPORARY RESET ROUTE — REMOVE AFTER USE
 # ════════════════════════════════════════════════════════════════
