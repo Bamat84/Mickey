@@ -25,10 +25,64 @@ Routes:
 """
 
 import datetime
+import time
+import json
+from collections import defaultdict
+from pathlib import Path
 from flask import (
     Blueprint, render_template, request, jsonify,
     session, redirect, url_for
 )
+
+# ── Auth-specific rate limiting ───────────────────────────────
+# Stricter than the AI rate limiter in server.py.
+# Principle 1: Rate limiting on all auth endpoints.
+# Principle 1: Failed login attempts logged with IP.
+
+_auth_attempts: dict = defaultdict(list)  # ip → [timestamps]
+
+_MAX_ATTEMPTS  = 5    # per _WINDOW_SECS
+_WINDOW_SECS   = 300  # 5-minute sliding window
+_LOCKOUT_SECS  = 900  # 15-minute lockout
+
+def _rate_key() -> str:
+    fwd = request.headers.get("X-Forwarded-For", "")
+    return fwd.split(",")[0].strip() if fwd else (request.remote_addr or "unknown")
+
+def _check_auth_rate(key: str) -> tuple:
+    """Returns (allowed: bool, seconds_to_wait: int)."""
+    now   = time.time()
+    calls = [t for t in _auth_attempts[key] if now - t < _WINDOW_SECS]
+    _auth_attempts[key] = calls
+    if len(calls) >= _MAX_ATTEMPTS:
+        wait = int(_LOCKOUT_SECS - (now - min(calls)))
+        return False, max(wait, 0)
+    return True, 0
+
+def _record_auth_attempt(key: str) -> None:
+    _auth_attempts[key].append(time.time())
+
+def _clear_auth_attempts(key: str) -> None:
+    _auth_attempts.pop(key, None)
+
+def _log_auth_event(event: str, email: str, success: bool) -> None:
+    """Append to audit log. Never logs passwords or tokens."""
+    try:
+        import os
+        base     = Path(os.environ.get("MICKEY_DATA", "/opt/mickey"))
+        log_path = base / "auth" / "auth_audit.jsonl"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        record = {
+            "ts":      datetime.datetime.utcnow().isoformat(),
+            "event":   event,
+            "email":   email,
+            "ip":      _rate_key(),
+            "success": success,
+        }
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except Exception:
+        pass  # logging must never crash the auth flow
 
 from auth.data import (
     domain_is_taken, email_to_domain,
@@ -190,6 +244,13 @@ def send_tc_email():
 
 @auth_bp.route("/auth/register", methods=["POST"])
 def do_register():
+    # Principle 1: rate limit registration by IP
+    ip = _rate_key()
+    allowed, wait = _check_auth_rate(ip)
+    if not allowed:
+        mins = (wait + 59) // 60
+        return jsonify({"error": f"Too many attempts. Please wait {mins} minute(s) and try again."}), 429
+
     d = request.get_json(force=True) or {}
 
     firm_name    = (d.get("firm_name")    or "").strip()
@@ -252,6 +313,7 @@ def do_register():
     firm = _load(firm["firm_id"])
     token = create_email_token(email, firm["firm_id"], user["user_id"])
     send_verification_email(email, display_name, firm_name, token)
+    _log_auth_event("register", email, True)
 
     # Store in session for the holding page
     session["pending_email"]     = email
@@ -313,6 +375,13 @@ def resend_verification():
 
 @auth_bp.route("/auth/signin", methods=["POST"])
 def do_signin():
+    # Principle 1: rate limit auth endpoints by IP
+    ip = _rate_key()
+    allowed, wait = _check_auth_rate(ip)
+    if not allowed:
+        mins = (wait + 59) // 60
+        return jsonify({"error": f"Too many attempts. Please wait {mins} minute(s) and try again."}), 429
+
     d        = request.get_json(force=True) or {}
     email    = (d.get("email") or "").strip().lower()
     password = d.get("password", "")
@@ -323,10 +392,15 @@ def do_signin():
     firm, user = find_user_by_email(email)
 
     if not firm or not user:
-        return jsonify({"error": "No account found with that email address."}), 401
+        _record_auth_attempt(ip)
+        _log_auth_event("signin_fail", email, False)
+        # Security: don't reveal whether the email is registered
+        return jsonify({"error": "Incorrect email or password."}), 401
 
     if not verify_pw(password, user.get("hashed", "")):
-        return jsonify({"error": "Incorrect password."}), 401
+        _record_auth_attempt(ip)
+        _log_auth_event("signin_fail", email, False)
+        return jsonify({"error": "Incorrect email or password."}), 401
 
     if not user.get("email_verified"):
         session["pending_email"] = email
@@ -341,6 +415,8 @@ def do_signin():
         return jsonify({"error": "This account has been suspended. Contact hello@askmickey.io."}), 403
 
     # ── Successful sign in ────────────────────────────────────
+    _clear_auth_attempts(ip)
+    _log_auth_event("signin_ok", email, True)
     _firm_session(firm, user)
     record_login(firm, user["user_id"])
 

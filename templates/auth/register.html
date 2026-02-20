@@ -1,5 +1,14 @@
 {% extends "auth/base.html" %}
 {% block title %}Register your firm — Mickey{% endblock %}
+{% block head %}
+<style>
+  .pw-wrap { position: relative; }
+  .pw-toggle { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: var(--text-muted); display: flex; align-items: center; border-radius: 4px; transition: color .12s; }
+  .pw-toggle:hover { color: var(--text); }
+  .pw-toggle svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.85; stroke-linecap: round; stroke-linejoin: round; }
+  .pw-input { padding-right: 42px !important; }
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="auth-page" style="padding-bottom:100px;">
@@ -72,8 +81,13 @@
 
     <div class="form-group">
       <label class="form-label" for="password">Password</label>
-      <input class="form-input" type="password" id="password" placeholder="" autocomplete="new-password" oninput="checkPwStrength(this.value)">
-      <!-- Password strength bar -->
+      <div class="pw-wrap">
+        <input class="form-input pw-input" type="password" id="password" autocomplete="new-password" oninput="checkPwStrength(this.value)">
+        <button type="button" class="pw-toggle" onclick="togglePw('password','eye-pw')" tabindex="-1" title="Show / hide password">
+          <svg id="eye-pw" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <!-- Password strength indicator -->
       <div id="pw-strength-bar" style="display:none;margin-top:6px;">
         <div style="height:3px;background:var(--cream-dark);border-radius:2px;overflow:hidden;">
           <div id="pw-strength-fill" style="height:100%;width:0%;border-radius:2px;transition:width .2s,background .2s;"></div>
@@ -83,7 +97,12 @@
     </div>
     <div class="form-group" style="margin-bottom:16px;">
       <label class="form-label" for="confirm">Confirm password</label>
-      <input class="form-input" type="password" id="confirm" placeholder="" autocomplete="new-password">
+      <div class="pw-wrap">
+        <input class="form-input pw-input" type="password" id="confirm" autocomplete="new-password">
+        <button type="button" class="pw-toggle" onclick="togglePw('confirm','eye-confirm')" tabindex="-1" title="Show / hide password">
+          <svg id="eye-confirm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
     </div>
 
     <div class="form-divider"></div>
@@ -162,6 +181,20 @@
 function acceptCookies() {
   localStorage.setItem('mickey_cookie_consent', 'accepted');
   document.getElementById('cookie-banner').style.display = 'none';
+}
+
+// ── Show / hide password ──────────────────────────────────────
+function togglePw(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon  = document.getElementById(iconId);
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  icon.innerHTML = show
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+       <line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+       <circle cx="12" cy="12" r="3"/>`;
 }
 
 // ── Password strength ─────────────────────────────────────────

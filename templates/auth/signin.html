@@ -1,6 +1,21 @@
 {% extends "auth/base.html" %}
 {% block title %}Sign in — Mickey{% endblock %}
 
+{% block head %}
+<style>
+  .pw-wrap { position: relative; }
+  .pw-toggle {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--text-muted); display: flex; align-items: center;
+    border-radius: 4px; transition: color .12s;
+  }
+  .pw-toggle:hover { color: var(--text); }
+  .pw-toggle svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.85; stroke-linecap: round; stroke-linejoin: round; }
+  .pw-input { padding-right: 42px !important; }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="auth-page">
   <div class="auth-card">
@@ -11,9 +26,8 @@
     </div>
 
     <h1 class="auth-title">Sign in</h1>
-    <p class="auth-sub">Welcome back. Enter your email and password to continue.</p>
+    <p class="auth-sub">Enter your email and password to continue.</p>
 
-    <!-- Error alert (shown server-side or via JS) -->
     <div id="alert-error" class="alert alert-red" style="display:none;">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="alert-error-msg"></span>
@@ -26,24 +40,28 @@
     </div>
     {% endif %}
 
-    <div id="signin-form">
+    <div class="form-group">
+      <label class="form-label" for="email">Email address</label>
+      <input class="form-input" type="email" id="email" autocomplete="email" autofocus>
+    </div>
 
-      <div class="form-group">
-        <label class="form-label" for="email">Email address</label>
-        <input class="form-input" type="email" id="email" placeholder="you@yourfirm.be" autocomplete="email" autofocus>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password">
-      </div>
-
-      <div style="margin-top:24px;">
-        <button class="btn btn-primary btn-full" id="btn-signin" onclick="doSignin()">
-          Sign in
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <div class="pw-wrap">
+        <input class="form-input pw-input" type="password" id="password" autocomplete="current-password">
+        <button type="button" class="pw-toggle" onclick="togglePw('password','eye-signin')" tabindex="-1" title="Show / hide password">
+          <svg id="eye-signin" viewBox="0 0 24 24">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
         </button>
       </div>
+    </div>
 
+    <div style="margin-top:24px;">
+      <button class="btn btn-primary btn-full" id="btn-signin" onclick="doSignin()">
+        Sign in
+      </button>
     </div>
 
   </div>
@@ -54,15 +72,28 @@
 </div>
 
 <script>
+function togglePw(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon  = document.getElementById(iconId);
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  icon.innerHTML = show
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+       <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+       <line x1="1" y1="1" x2="23" y2="23"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+       <circle cx="12" cy="12" r="3"/>`;
+}
+
 async function doSignin() {
-  const email    = document.getElementById('email').value.trim();
+  const email    = document.getElementById('email').value.trim().toLowerCase();
   const password = document.getElementById('password').value;
   const btn      = document.getElementById('btn-signin');
 
   if (!email || !password) { showError('Please enter your email and password.'); return; }
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+  btn.innerHTML = '<span class="spinner"></span> Signing in\u2026';
 
   try {
     const r = await fetch('/auth/signin', {
@@ -72,9 +103,10 @@ async function doSignin() {
     });
     const d = await r.json();
     if (d.ok) {
-      window.location.href = d.redirect || '/';
+      window.location.href = d.redirect || '/app';
     } else {
-      showError(d.error || 'Sign in failed. Please try again.');
+      // Security: don't reveal whether email exists — always generic
+      showError('Incorrect email or password.');
       btn.disabled = false;
       btn.innerHTML = 'Sign in';
     }
@@ -91,8 +123,6 @@ function showError(msg) {
   el.style.display = 'flex';
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') doSignin();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doSignin(); });
 </script>
 {% endblock %}
