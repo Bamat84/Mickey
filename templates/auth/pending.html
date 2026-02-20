@@ -1,0 +1,43 @@
+{% extends "auth/base.html" %}
+{% block title %}Registration received — Mickey{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card" style="text-align:center;">
+
+    <div style="display:flex;justify-content:center;margin-bottom:28px;">
+      <div style="width:56px;height:56px;background:var(--amber-bg);border:1.5px solid var(--amber-border);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="auth-title">Registration received</h1>
+    <p class="auth-sub">
+      Thank you{% if firm_name %}, <strong>{{ firm_name }}</strong>{% endif %}.
+      Your email has been verified and your registration is now under review.
+    </p>
+
+    <div class="alert alert-amber" style="text-align:left;margin-bottom:24px;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <strong>What happens next</strong><br>
+        We review all registrations manually. You'll receive an email at
+        {% if email %}<strong>{{ email }}</strong>{% else %}your registered address{% endif %}
+        once your account has been activated. This typically takes one business day.
+      </div>
+    </div>
+
+    <p class="text-muted text-small">
+      Questions? Email us at
+      <a href="mailto:hello@askmickey.io" style="color:var(--green);">hello@askmickey.io</a>
+    </p>
+
+  </div>
+
+  <div class="auth-footer">
+    <a href="/signin">Back to sign in</a>
+  </div>
+</div>
+{% endblock %}

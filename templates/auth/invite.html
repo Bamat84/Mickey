@@ -1,0 +1,134 @@
+{% extends "auth/base.html" %}
+{% block title %}Accept invitation — Mickey{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logomark">m</div>
+      <div class="auth-wordmark">Mickey<span>Legal Intelligence</span></div>
+    </div>
+
+    <!-- Invalid / expired token -->
+    {% if invalid %}
+    <div class="alert alert-red">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <strong>Invitation expired or invalid</strong><br>
+        This invitation link has already been used or has expired. Ask your firm admin to send a new invite.
+      </div>
+    </div>
+    <div class="auth-footer" style="margin-top:0;"><a href="/signin">Go to sign in</a></div>
+
+    {% else %}
+
+    <h1 class="auth-title">You've been invited</h1>
+    <p class="auth-sub">
+      {% if invited_by %}{{ invited_by }} has invited you to join{% else %}You've been invited to join{% endif %}
+      <strong>{{ firm_name }}</strong> on Mickey as
+      <strong>{{ role_label }}</strong>.
+      Set your password to get started.
+    </p>
+
+    <div id="alert-error" class="alert alert-red" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alert-error-msg"></span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" type="email" value="{{ email }}" disabled>
+      <span class="form-hint">This is the email your invitation was sent to.</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="display_name">Your full name</label>
+      <input class="form-input" type="text" id="display_name" placeholder="Jane Dupont" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Choose a password</label>
+      <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="new-password">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="confirm">Confirm password</label>
+      <input class="form-input" type="password" id="confirm" placeholder="••••••••" autocomplete="new-password">
+      <span class="form-hint">Minimum 8 characters, uppercase, number and special character.</span>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <div style="margin-bottom:24px;">
+      <label class="form-check">
+        <input type="checkbox" id="tc_accept">
+        <span class="form-check-label">
+          I have read and accept the
+          <a href="/terms" target="_blank">Terms of Service</a>
+          and
+          <a href="/privacy" target="_blank">Privacy Policy</a>.
+        </span>
+      </label>
+    </div>
+
+    <button class="btn btn-primary btn-full" id="btn-accept" onclick="doAccept()" style="padding:11px;">
+      Accept invitation &amp; sign in
+    </button>
+
+    {% endif %}
+  </div>
+
+  {% if not invalid %}
+  <div class="auth-footer">
+    <a href="/signin">Already have an account? Sign in</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+const TOKEN = "{{ token }}";
+
+async function doAccept() {
+  const display_name = document.getElementById('display_name').value.trim();
+  const password     = document.getElementById('password').value;
+  const confirm      = document.getElementById('confirm').value;
+  const tc_accept    = document.getElementById('tc_accept').checked;
+
+  if (!display_name) return showError('Please enter your full name.');
+  if (!password)     return showError('Please choose a password.');
+  if (password !== confirm) return showError('Passwords do not match.');
+  if (!tc_accept)    return showError('Please accept the Terms of Service to continue.');
+
+  const btn = document.getElementById('btn-accept');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Setting up your account…';
+
+  try {
+    const r = await fetch('/auth/invite/accept', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN, display_name, password, confirm, tc_accept })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      window.location.href = d.redirect || '/';
+    } else {
+      showError(d.error || 'Could not accept invitation. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = 'Accept invitation &amp; sign in';
+    }
+  } catch(e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = 'Accept invitation &amp; sign in';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  document.getElementById('alert-error-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+</script>
+{% endblock %}

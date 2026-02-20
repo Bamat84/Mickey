@@ -1,0 +1,98 @@
+{% extends "auth/base.html" %}
+{% block title %}Sign in — Mickey{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-logo">
+      <div class="auth-logomark">m</div>
+      <div class="auth-wordmark">Mickey<span>Legal Intelligence</span></div>
+    </div>
+
+    <h1 class="auth-title">Sign in</h1>
+    <p class="auth-sub">Welcome back. Enter your email and password to continue.</p>
+
+    <!-- Error alert (shown server-side or via JS) -->
+    <div id="alert-error" class="alert alert-red" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alert-error-msg"></span>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-red">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
+    <div id="signin-form">
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email address</label>
+        <input class="form-input" type="email" id="email" placeholder="you@yourfirm.be" autocomplete="email" autofocus>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <div style="margin-top:24px;">
+        <button class="btn btn-primary btn-full" id="btn-signin" onclick="doSignin()">
+          Sign in
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="auth-footer">
+    Don't have an account? <a href="/register">Register your firm</a>
+  </div>
+</div>
+
+<script>
+async function doSignin() {
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('btn-signin');
+
+  if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const r = await fetch('/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      window.location.href = d.redirect || '/';
+    } else {
+      showError(d.error || 'Sign in failed. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = 'Sign in';
+    }
+  } catch(e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = 'Sign in';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  document.getElementById('alert-error-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSignin();
+});
+</script>
+{% endblock %}

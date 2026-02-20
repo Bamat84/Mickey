@@ -1,0 +1,257 @@
+{% extends "auth/base.html" %}
+{% block title %}Register your firm — Mickey{% endblock %}
+
+{% block body %}
+<div class="auth-page" style="padding-bottom:100px;">
+  <div class="auth-card auth-card-wide">
+
+    <div class="auth-logo">
+      <div class="auth-logomark">m</div>
+      <div class="auth-wordmark">Mickey<span>Legal Intelligence</span></div>
+    </div>
+
+    <h1 class="auth-title">Register your firm</h1>
+    <p class="auth-sub">Create your firm's Mickey account. You'll be the account admin and can invite your team after approval.</p>
+
+    <!-- Error alert -->
+    <div id="alert-error" class="alert alert-red" style="display:none;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="alert-error-msg"></span>
+    </div>
+
+    <!-- Domain blocked alert -->
+    <div id="alert-domain" class="alert alert-amber" style="display:none;">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Your firm's email domain is already registered on Mickey. Ask your firm's account admin to invite you instead.</span>
+    </div>
+
+    <!-- Firm details -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;">Firm details</div>
+
+    <div class="form-group">
+      <label class="form-label" for="firm_name">Firm name</label>
+      <input class="form-input" type="text" id="firm_name" placeholder="De Backer Law" autocomplete="organization">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="form-group">
+        <label class="form-label" for="country">Country</label>
+        <select class="form-input" id="country">
+          <option value="BE" selected>Belgium</option>
+          <option value="NL">Netherlands</option>
+          <option value="LU">Luxembourg</option>
+          <option value="FR">France</option>
+          <option value="DE">Germany</option>
+          <option value="GB">United Kingdom</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="vat">VAT number <span class="optional">(optional)</span></label>
+        <input class="form-input" type="text" id="vat" placeholder="BE0123456789">
+      </div>
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- Account admin -->
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;">Your account</div>
+
+    <div class="form-group">
+      <label class="form-label" for="display_name">Your full name</label>
+      <input class="form-input" type="text" id="display_name" placeholder="Mathias De Backer" autocomplete="name">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Work email address</label>
+      <input class="form-input" type="email" id="email" placeholder="mathias@yourfirm.be"
+             autocomplete="email" oninput="checkDomain(this.value)">
+      <span class="form-hint">Use your firm email address. This becomes your login.</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="confirm">Confirm password</label>
+        <input class="form-input" type="password" id="confirm" placeholder="••••••••" autocomplete="new-password">
+      </div>
+    </div>
+    <div class="form-hint" style="margin-top:-8px;margin-bottom:16px;">
+      Minimum 8 characters, including uppercase, number and special character.
+    </div>
+
+    <div class="form-divider"></div>
+
+    <!-- T&C acceptance -->
+    <div style="margin-bottom:20px;">
+      <label class="form-check">
+        <input type="checkbox" id="tc_accept">
+        <span class="form-check-label">
+          I have read and accept the
+          <a href="/terms" target="_blank">Terms of Service</a>
+          and
+          <a href="/privacy" target="_blank">Privacy Policy</a>,
+          including the processing of personal data as described therein.
+        </span>
+      </label>
+
+      <div style="display:flex;gap:8px;margin-top:12px;padding-left:25px;">
+        <button class="btn btn-secondary btn-sm" onclick="downloadTC()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="sendTCEmail()">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send to my email
+        </button>
+      </div>
+      <div id="tc-email-sent" style="display:none;padding-left:25px;margin-top:8px;">
+        <span class="form-hint" style="color:var(--green);">✓ T&amp;Cs sent to your email address.</span>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button class="btn btn-primary btn-full" id="btn-register" onclick="doRegister()" style="padding:11px;">
+      Register firm
+    </button>
+
+    <p style="margin-top:14px;font-size:11.5px;color:var(--text-faint);text-align:center;line-height:1.6;">
+      Your registration will be reviewed before your account is activated.
+      You'll receive an email once approved.
+    </p>
+
+  </div>
+
+  <div class="auth-footer">
+    Already have an account? <a href="/signin">Sign in</a>
+  </div>
+</div>
+
+<!-- Cookie banner (only on this page, first visit) -->
+<div id="cookie-banner" class="cookie-banner" style="display:none;">
+  <p>
+    Mickey uses essential cookies to keep you signed in and remember your preferences.
+    No tracking or advertising cookies are used.
+    <a href="/privacy" target="_blank">Learn more</a>
+  </p>
+  <button class="btn-cookie-reject" onclick="rejectCookies()">Decline non-essential</button>
+  <button class="btn-cookie-accept" onclick="acceptCookies()">Accept</button>
+</div>
+
+<script>
+// ── Cookie banner ─────────────────────────────────────────────
+(function() {
+  if (!localStorage.getItem('mickey_cookie_consent')) {
+    document.getElementById('cookie-banner').style.display = 'flex';
+  }
+})();
+
+function acceptCookies() {
+  localStorage.setItem('mickey_cookie_consent', 'accepted');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+function rejectCookies() {
+  localStorage.setItem('mickey_cookie_consent', 'essential_only');
+  document.getElementById('cookie-banner').style.display = 'none';
+}
+
+// ── Domain blocking ───────────────────────────────────────────
+let domainCheckTimer;
+function checkDomain(email) {
+  clearTimeout(domainCheckTimer);
+  const domain = email.split('@')[1];
+  if (!domain || domain.indexOf('.') === -1) return hideDomainAlert();
+  domainCheckTimer = setTimeout(async () => {
+    try {
+      const r = await fetch('/auth/check-domain?domain=' + encodeURIComponent(domain));
+      const d = await r.json();
+      if (d.taken) showDomainAlert();
+      else hideDomainAlert();
+    } catch(e) {}
+  }, 500);
+}
+function showDomainAlert() {
+  document.getElementById('alert-domain').style.display = 'flex';
+  document.getElementById('btn-register').disabled = true;
+}
+function hideDomainAlert() {
+  document.getElementById('alert-domain').style.display = 'none';
+  document.getElementById('btn-register').disabled = false;
+}
+
+// ── T&C helpers ───────────────────────────────────────────────
+function downloadTC() {
+  window.open('/terms.pdf', '_blank');
+}
+async function sendTCEmail() {
+  const email = document.getElementById('email').value.trim();
+  if (!email) { showError('Enter your email address first.'); return; }
+  try {
+    await fetch('/auth/send-tc-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    document.getElementById('tc-email-sent').style.display = 'block';
+  } catch(e) {}
+}
+
+// ── Registration ──────────────────────────────────────────────
+async function doRegister() {
+  hideError();
+  const firm_name    = document.getElementById('firm_name').value.trim();
+  const country      = document.getElementById('country').value;
+  const vat          = document.getElementById('vat').value.trim();
+  const display_name = document.getElementById('display_name').value.trim();
+  const email        = document.getElementById('email').value.trim();
+  const password     = document.getElementById('password').value;
+  const confirm      = document.getElementById('confirm').value;
+  const tc_accept    = document.getElementById('tc_accept').checked;
+  const cookie       = localStorage.getItem('mickey_cookie_consent') || 'not_set';
+
+  if (!firm_name)    return showError('Please enter your firm name.');
+  if (!display_name) return showError('Please enter your full name.');
+  if (!email)        return showError('Please enter your work email address.');
+  if (!password)     return showError('Please choose a password.');
+  if (password !== confirm) return showError('Passwords do not match.');
+  if (!tc_accept)    return showError('Please accept the Terms of Service to continue.');
+
+  const btn = document.getElementById('btn-register');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Registering…';
+
+  try {
+    const r = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firm_name, country, vat, display_name, email, password, confirm, tc_accept, cookie_consent: cookie })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      window.location.href = '/verify-pending';
+    } else {
+      showError(d.error || 'Registration failed. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = 'Register firm';
+    }
+  } catch(e) {
+    showError('Connection error. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = 'Register firm';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('alert-error');
+  document.getElementById('alert-error-msg').textContent = msg;
+  el.style.display = 'flex';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function hideError() {
+  document.getElementById('alert-error').style.display = 'none';
+}
+</script>
+{% endblock %}

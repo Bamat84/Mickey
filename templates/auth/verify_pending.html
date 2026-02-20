@@ -1,0 +1,54 @@
+{% extends "auth/base.html" %}
+{% block title %}Verify your email — Mickey{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card" style="text-align:center;">
+
+    <div style="display:flex;justify-content:center;margin-bottom:28px;">
+      <div style="width:56px;height:56px;background:var(--green-light);border:1.5px solid var(--green-border);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="auth-title">Check your email</h1>
+    <p class="auth-sub">
+      We've sent a verification link to
+      {% if email %}<strong>{{ email }}</strong>.{% else %}your email address.{% endif %}
+      Click the link to verify your address and submit your registration for review.
+    </p>
+
+    <div class="alert alert-amber" style="text-align:left;">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>The link expires in 24 hours. Check your spam folder if you don't see it.</span>
+    </div>
+
+    <div id="resend-section">
+      <p class="text-muted text-small mt-16">Didn't receive it?</p>
+      <button class="btn btn-ghost btn-sm mt-4" onclick="resend()">Resend verification email</button>
+      <div id="resend-ok" style="display:none;margin-top:8px;">
+        <span style="font-size:12px;color:var(--green);">&#10003; Sent. Please check your inbox.</span>
+      </div>
+    </div>
+
+  </div>
+  <div class="auth-footer"><a href="/register">Back to registration</a></div>
+</div>
+
+<script>
+async function resend() {
+  const btn = document.querySelector('#resend-section button');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await fetch('/auth/resend-verification', { method: 'POST' });
+    document.getElementById('resend-ok').style.display = 'block';
+    btn.style.display = 'none';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Resend verification email';
+  }
+}
+</script>
+{% endblock %}
