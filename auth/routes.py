@@ -739,7 +739,7 @@ def platform_setup():
 
 
 
-@auth_bp.route("/platform-approve")
+@auth_bp.route("/platform-approve", methods=["GET", "POST"])
 def platform_approve():
     """Temporary firm approval page — until back office is built."""
     import os, hashlib
