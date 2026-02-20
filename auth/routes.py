@@ -487,3 +487,53 @@ def terms_page():
 @auth_bp.route("/privacy")
 def privacy_page():
     return render_template("auth/privacy.html")
+
+
+# ════════════════════════════════════════════════════════════════
+# TEMPORARY RESET ROUTE — REMOVE AFTER USE
+# ════════════════════════════════════════════════════════════════
+# Access: /auth/reset-registration?code=MICKEYRESET2026
+# Clears firm/index files so you can re-register.
+# This route will be deleted in the next commit.
+
+@auth_bp.route("/auth/reset-registration")
+def temp_reset_registration():
+    import os
+    from pathlib import Path
+
+    code = request.args.get("code", "")
+    if code != "MICKEYRESET2026":
+        return "Not found", 404
+
+    base = Path(os.environ.get("MICKEY_DATA", "/opt/mickey"))
+    auth_path = base / "auth"
+    deleted = []
+
+    # Delete all firm files
+    for f in (auth_path / "firms").glob("f_*.json"):
+        f.unlink()
+        deleted.append(f.name)
+
+    # Delete indexes
+    for name in ["domain_to_firm.json", "email_to_firm.json"]:
+        p = auth_path / "indexes" / name
+        if p.exists():
+            p.unlink()
+            deleted.append(name)
+
+    # Delete all tokens (verification + invites)
+    for f in (auth_path / "tokens").glob("*.json"):
+        f.unlink()
+        deleted.append(f.name)
+
+    return f"""
+    <html><body style="font-family:sans-serif;padding:40px;background:#F5F3EE;">
+    <h2 style="color:#1B4F40;">Registration reset complete</h2>
+    <p>Deleted {len(deleted)} file(s).</p>
+    <p style="margin-top:20px;">
+        <a href="/register" style="background:#1B4F40;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">
+            Register now
+        </a>
+    </p>
+    </body></html>
+    """
