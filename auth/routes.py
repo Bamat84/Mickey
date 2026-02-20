@@ -401,3 +401,13 @@ def accept_invite():
 def signout():
     session.clear()
     return jsonify({"ok": True, "redirect": "/"})
+
+
+@auth_bp.route("/terms")
+def terms_page():
+    return render_template("auth/terms.html")
+
+
+@auth_bp.route("/privacy")
+def privacy_page():
+    return render_template("auth/privacy.html")

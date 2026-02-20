@@ -30,14 +30,15 @@
 
     <div class="form-group">
       <label class="form-label" for="firm_name">Firm name</label>
-      <input class="form-input" type="text" id="firm_name" placeholder="De Backer Law" autocomplete="organization">
+      <input class="form-input" type="text" id="firm_name" placeholder="" autocomplete="off">
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
       <div class="form-group">
         <label class="form-label" for="country">Country</label>
         <select class="form-input" id="country">
-          <option value="BE" selected>Belgium</option>
+          <option value="">— select —</option>
+          <option value="BE">Belgium</option>
           <option value="NL">Netherlands</option>
           <option value="LU">Luxembourg</option>
           <option value="FR">France</option>
@@ -48,7 +49,7 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="vat">VAT number <span class="optional">(optional)</span></label>
-        <input class="form-input" type="text" id="vat" placeholder="BE0123456789">
+        <input class="form-input" type="text" id="vat" placeholder="" autocomplete="off">
       </div>
     </div>
 
@@ -59,28 +60,30 @@
 
     <div class="form-group">
       <label class="form-label" for="display_name">Your full name</label>
-      <input class="form-input" type="text" id="display_name" placeholder="Mathias De Backer" autocomplete="name">
+      <input class="form-input" type="text" id="display_name" placeholder="" autocomplete="off">
     </div>
 
     <div class="form-group">
       <label class="form-label" for="email">Work email address</label>
-      <input class="form-input" type="email" id="email" placeholder="mathias@yourfirm.be"
-             autocomplete="email" oninput="checkDomain(this.value)">
+      <input class="form-input" type="email" id="email" placeholder=""
+             autocomplete="off" oninput="checkDomain(this.value)">
       <span class="form-hint">Use your firm email address. This becomes your login.</span>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-      <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="new-password">
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="confirm">Confirm password</label>
-        <input class="form-input" type="password" id="confirm" placeholder="••••••••" autocomplete="new-password">
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <input class="form-input" type="password" id="password" placeholder="" autocomplete="new-password" oninput="checkPwStrength(this.value)">
+      <!-- Password strength bar -->
+      <div id="pw-strength-bar" style="display:none;margin-top:6px;">
+        <div style="height:3px;background:var(--cream-dark);border-radius:2px;overflow:hidden;">
+          <div id="pw-strength-fill" style="height:100%;width:0%;border-radius:2px;transition:width .2s,background .2s;"></div>
+        </div>
+        <div id="pw-strength-rules" style="margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;"></div>
       </div>
     </div>
-    <div class="form-hint" style="margin-top:-8px;margin-bottom:16px;">
-      Minimum 8 characters, including uppercase, number and special character.
+    <div class="form-group" style="margin-bottom:16px;">
+      <label class="form-label" for="confirm">Confirm password</label>
+      <input class="form-input" type="password" id="confirm" placeholder="" autocomplete="new-password">
     </div>
 
     <div class="form-divider"></div>
@@ -130,22 +133,29 @@
   </div>
 </div>
 
-<!-- Cookie banner (only on this page, first visit) -->
-<div id="cookie-banner" class="cookie-banner" style="display:none;">
-  <p>
-    Mickey uses essential cookies to keep you signed in and remember your preferences.
-    No tracking or advertising cookies are used.
-    <a href="/privacy" target="_blank">Learn more</a>
-  </p>
-  <button class="btn-cookie-reject" onclick="rejectCookies()">Decline non-essential</button>
-  <button class="btn-cookie-accept" onclick="acceptCookies()">Accept</button>
+<!-- Cookie banner -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--green);padding:20px 28px;z-index:1000;border-top:1px solid rgba(255,255,255,0.1);">
+  <div style="max-width:860px;margin:0 auto;">
+    <p style="font-family:var(--font-serif);font-size:15px;font-weight:500;color:#fff;margin-bottom:6px;">Cookie notice</p>
+    <p style="font-size:12.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:14px;">
+      Mickey uses <strong style="color:#fff;">one session cookie</strong> to keep you signed in while you use the platform.
+      No tracking, analytics, advertising or third-party cookies are used. This cookie is strictly necessary
+      for the service to function and is deleted when you sign out or close your browser.
+      <a href="/privacy" target="_blank" style="color:rgba(255,255,255,0.6);text-decoration:underline;margin-left:6px;">Full privacy policy</a>
+    </p>
+    <div style="display:flex;gap:10px;">
+      <button onclick="acceptCookies()" style="background:#fff;color:var(--green);border:none;padding:9px 20px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">
+        Understood
+      </button>
+    </div>
+  </div>
 </div>
 
 <script>
 // ── Cookie banner ─────────────────────────────────────────────
 (function() {
   if (!localStorage.getItem('mickey_cookie_consent')) {
-    document.getElementById('cookie-banner').style.display = 'flex';
+    document.getElementById('cookie-banner').style.display = 'block';
   }
 })();
 
@@ -153,9 +163,31 @@ function acceptCookies() {
   localStorage.setItem('mickey_cookie_consent', 'accepted');
   document.getElementById('cookie-banner').style.display = 'none';
 }
-function rejectCookies() {
-  localStorage.setItem('mickey_cookie_consent', 'essential_only');
-  document.getElementById('cookie-banner').style.display = 'none';
+
+// ── Password strength ─────────────────────────────────────────
+function checkPwStrength(pw) {
+  const bar   = document.getElementById('pw-strength-bar');
+  const fill  = document.getElementById('pw-strength-fill');
+  const rules = document.getElementById('pw-strength-rules');
+  if (!pw) { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+
+  const checks = [
+    { label: '8+ characters',    ok: pw.length >= 8 },
+    { label: 'Uppercase letter', ok: /[A-Z]/.test(pw) },
+    { label: 'Number',           ok: /[0-9]/.test(pw) },
+    { label: 'Special character',ok: /[!@#$%^&*()\-_=+\[\]{};:\'",.<>\/?`~\\|]/.test(pw) },
+  ];
+  const score = checks.filter(c => c.ok).length;
+  const colours = ['#C0392B','#E67E22','#C8A030','#27AE60'];
+  fill.style.width  = (score * 25) + '%';
+  fill.style.background = colours[score - 1] || '#C0392B';
+
+  rules.innerHTML = checks.map(c =>
+    `<span style="font-size:11px;color:${c.ok ? 'var(--green)' : 'var(--text-faint)'};">
+      ${c.ok ? '✓' : '○'} ${c.label}
+    </span>`
+  ).join('');
 }
 
 // ── Domain blocking ───────────────────────────────────────────

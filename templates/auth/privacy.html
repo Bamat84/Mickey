@@ -1,0 +1,50 @@
+{% extends "auth/base.html" %}
+{% block title %}Privacy Policy — Mickey{% endblock %}
+{% block body %}
+<div class="auth-page" style="align-items:flex-start;padding:60px 20px;">
+  <div style="max-width:680px;width:100%;margin:0 auto;">
+
+    <div style="margin-bottom:32px;">
+      <a href="/" style="font-size:13px;color:var(--green);text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </a>
+    </div>
+
+    <div style="background:var(--white);border:1px solid var(--cream-mid);border-radius:var(--r-xl);padding:48px 52px;">
+      <h1 style="font-family:var(--font-serif);font-size:28px;font-weight:500;color:var(--text);margin-bottom:8px;">Privacy Policy</h1>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:36px;font-family:var(--font-mono);">Version 1.0 — Last updated: February 2026</p>
+
+      <div style="font-size:14px;line-height:1.8;color:var(--text);">
+
+        <p style="margin-bottom:20px;">Mickey Legal ("<strong>Mickey</strong>") is committed to protecting your personal data in accordance with the General Data Protection Regulation (GDPR) and Belgian data protection law.</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">1. Controller</h2>
+        <p style="margin-bottom:16px;">Mickey Legal is the data controller for account and usage data. Contact: <a href="mailto:hello@askmickey.io" style="color:var(--green);">hello@askmickey.io</a></p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">2. Data we collect</h2>
+        <p style="margin-bottom:8px;"><strong>Account data:</strong> firm name, email address, name, country, VAT number. Used to manage your account.</p>
+        <p style="margin-bottom:8px;"><strong>Usage data:</strong> feature usage counts and timestamps (no content). Used to improve the service.</p>
+        <p style="margin-bottom:16px;"><strong>Documents you upload:</strong> processed to generate AI responses and immediately discarded. Not stored on our servers beyond the current session.</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">3. Cookies</h2>
+        <p style="margin-bottom:16px;">Mickey uses a single session cookie strictly necessary for authentication. This cookie contains no personal data, is not shared with third parties, and is deleted when you sign out. No tracking, analytics or advertising cookies are used.</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">4. Legal basis</h2>
+        <p style="margin-bottom:16px;">Processing is based on contract performance (Art. 6(1)(b) GDPR) for account data, and legitimate interests (Art. 6(1)(f) GDPR) for usage analytics. The session cookie is strictly necessary and does not require consent under Belgian cookie law.</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">5. Data retention</h2>
+        <p style="margin-bottom:16px;">Account data is retained for the duration of your subscription plus 12 months. Usage logs are retained for 12 months. You may request deletion at any time.</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">6. Your rights</h2>
+        <p style="margin-bottom:16px;">Under GDPR you have the right to access, rectify, erase, restrict or port your data, and to object to processing. Submit requests to <a href="mailto:hello@askmickey.io" style="color:var(--green);">hello@askmickey.io</a>. You may also lodge a complaint with the Belgian Data Protection Authority (gegevensbeschermingsautoriteit.be).</p>
+
+        <h2 style="font-family:var(--font-serif);font-size:18px;font-weight:500;margin:28px 0 12px;">7. Sub-processors</h2>
+        <p style="margin-bottom:16px;">AI processing is performed via Anthropic's API (USA — Standard Contractual Clauses apply). Email delivery via Brevo (EU). No other sub-processors have access to your data.</p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
