@@ -1,0 +1,9 @@
+flask
+anthropic
+openai
+pypdf
+python-docx
+numpy
+bcrypt
+cryptography
+waitress
