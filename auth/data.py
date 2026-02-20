@@ -545,3 +545,36 @@ def rebuild_indexes() -> None:
 
     _save_index("domain_to_firm", domain_idx)
     _save_index("email_to_firm",  email_idx)
+
+def create_password_reset_token(email: str, firm_id: str, user_id: str) -> str:
+    """
+    Create a password reset token.
+    Principle 1: expires after 1 hour, single-use.
+    Any existing unused reset tokens for this user are invalidated first.
+    """
+    # Invalidate any existing reset tokens for this user (principle 1)
+    for p in TOKENS_DIR.glob("*.json"):
+        rec = _read_json(p)
+        if (rec
+            and rec.get("type") == "password_reset"
+            and rec.get("user_id") == user_id
+            and not rec.get("used")):
+            rec["used"] = True
+            rec["invalidated"] = True
+            _atomic_write(p, rec)
+
+    token = new_token()
+    now   = datetime.datetime.utcnow()
+    rec   = {
+        "token":      token,
+        "type":       "password_reset",
+        "email":      email.lower().strip(),
+        "firm_id":    firm_id,
+        "user_id":    user_id,
+        "role":       None,
+        "created_at": now.isoformat(),
+        "expires_at": (now + datetime.timedelta(hours=1)).isoformat(),  # Principle 1: 1 hour
+        "used":       False,
+    }
+    _atomic_write(_token_path(token), rec)
+    return token

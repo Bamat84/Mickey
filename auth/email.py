@@ -324,3 +324,26 @@ def send_new_firm_notification(
         _btn(backoffice_url, "Review in back office")
     )
     return _send(OWNER_EMAIL, "Mickey Admin", f"New registration: {firm_name}", _base_template(content))
+
+def send_password_reset_email(
+    to_email: str,
+    display_name: str,
+    token: str,
+) -> bool:
+    """
+    Sent when a user requests a password reset.
+    Token expires in 1 hour (single-use — principle 1).
+    """
+    reset_url = f"{PLATFORM_URL}/reset-password/{token}"
+
+    content = (
+        _h1("Reset your password") +
+        _p(f"Hi {display_name},") +
+        _p("We received a request to reset your Mickey password. "
+           "Click the button below to choose a new one.") +
+        _btn(reset_url, "Reset my password") +
+        _p("<strong>This link expires in 1 hour</strong> and can only be used once. "
+           "If you did not request a password reset, you can safely ignore this email — "
+           "your password has not been changed.")
+    )
+    return _send(to_email, display_name, "Reset your Mickey password", _base_template(content))

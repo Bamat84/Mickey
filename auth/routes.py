@@ -92,6 +92,7 @@ from auth.data import (
     get_firm_id_by_email, load_firm, find_user_by_email,
     register_domain, register_email, update_user_field,
     get_firm_user_count, record_login, accept_tc,
+    create_password_reset_token,
 )
 from auth.passwords import hash_pw, verify_pw, validate_pw
 from auth.email import (
@@ -99,6 +100,7 @@ from auth.email import (
     send_approval_email,
     send_new_firm_notification,
     send_invite_email,
+    send_password_reset_email,
 )
 
 auth_bp = Blueprint("auth", __name__)
@@ -487,6 +489,92 @@ def terms_page():
 @auth_bp.route("/privacy")
 def privacy_page():
     return render_template("auth/privacy.html")
+
+
+@auth_bp.route("/forgot-password")
+def forgot_password_page():
+    """Request password reset — shown when user clicks 'Forgot password'."""
+    return render_template("auth/forgot_password.html")
+
+
+@auth_bp.route("/auth/forgot-password", methods=["POST"])
+def do_forgot_password():
+    """
+    Principle 1: Never reveal whether email exists.
+    Always return the same response regardless.
+    Rate limited by IP.
+    """
+    ip = _rate_key()
+    allowed, wait = _check_auth_rate(ip)
+    if not allowed:
+        mins = (wait + 59) // 60
+        return jsonify({"error": f"Too many attempts. Please wait {mins} minute(s)."}), 429
+
+    d     = request.get_json(force=True) or {}
+    email = (d.get("email") or "").strip().lower()
+
+    _record_auth_attempt(ip)
+
+    if email and "@" in email:
+        firm, user = find_user_by_email(email)
+        if firm and user and user.get("email_verified"):
+            token = create_password_reset_token(email, firm["firm_id"], user["user_id"])
+            send_password_reset_email(email, user["display_name"], token)
+            _log_auth_event("password_reset_requested", email, True)
+
+    # Always return success — principle 1: never reveal if email exists
+    return jsonify({"ok": True})
+
+
+@auth_bp.route("/reset-password/<token>")
+def reset_password_page(token):
+    """Password reset form — user arrives here from email link."""
+    rec = load_token(token)
+
+    # Validate token without consuming it yet
+    if not rec or rec.get("used") or rec.get("type") != "password_reset":
+        return render_template("auth/reset_password.html", invalid=True, token=token)
+
+    expires = datetime.datetime.fromisoformat(rec["expires_at"])
+    if datetime.datetime.utcnow() > expires:
+        return render_template("auth/reset_password.html", expired=True, token=token)
+
+    return render_template("auth/reset_password.html", invalid=False, expired=False, token=token)
+
+
+@auth_bp.route("/auth/reset-password", methods=["POST"])
+def do_reset_password():
+    """
+    Consume the reset token and update the password.
+    Principle 1: token is single-use, expires after 1 hour.
+    """
+    d        = request.get_json(force=True) or {}
+    token    = d.get("token", "")
+    password = d.get("password", "")
+    confirm  = d.get("confirm", "")
+
+    if password != confirm:
+        return jsonify({"error": "Passwords do not match."}), 400
+
+    valid, rules = validate_pw(password)
+    if not valid:
+        return jsonify({"error": "Password needs: " + ", ".join(rules) + "."}), 400
+
+    # consume_token validates expiry and single-use atomically
+    rec = consume_token(token)
+    if not rec or rec.get("type") != "password_reset":
+        return jsonify({"error": "This reset link has expired or already been used. Please request a new one."}), 400
+
+    firm = load_firm(rec["firm_id"])
+    if not firm:
+        return jsonify({"error": "Account not found."}), 404
+
+    # Update password
+    hashed = hash_pw(password)
+    update_user_field(firm, rec["user_id"], hashed=hashed)
+    _log_auth_event("password_reset_complete", rec["email"], True)
+
+    return jsonify({"ok": True})
 
 
 # ════════════════════════════════════════════════════════════════
