@@ -25,7 +25,12 @@ import anthropic
 
 # ── App setup ─────────────────────────────────────────────────
 app = Flask(__name__)
-
+try:
+    from auth.routes import auth_bp
+    app.register_blueprint(auth_bp)
+    print("  Auth module: loaded")
+except ImportError as e:
+    print(f"  Auth module: not found ({e}) — running without firm auth")
 # Secret key MUST come from environment in production
 # Set: $env:MICKEY_SECRET = "your-long-random-string"  (PowerShell)
 # Or:  set MICKEY_SECRET=your-long-random-string         (cmd)
@@ -458,8 +463,8 @@ Standards:
 # ROUTES
 # ══════════════════════════════════════════════════════════════
 
-@app.route("/")
-def index():
+@app.route("/app")
+def app_index():
     return render_template("index.html")
 
 @app.route("/api/csrf")
