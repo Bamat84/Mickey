@@ -577,6 +577,165 @@ def do_reset_password():
     return jsonify({"ok": True})
 
 
+
+
+# ════════════════════════════════════════════════════════════════
+# PLATFORM CONFIG PAGE  (one-time setup, browser-based)
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/platform-setup", methods=["GET", "POST"])
+def platform_setup():
+    import os
+    from pathlib import Path
+
+    # Protected by URL key (temporary) OR environment variable if set
+    import hashlib
+    url_key  = request.args.get("key", "") or request.form.get("setup_key", "")
+    env_pw   = os.environ.get("MICKEY_ADMIN_PASSWORD", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+
+    authed = (
+        (url_key and hashlib.sha256(url_key.encode()).hexdigest() == valid_key) or
+        (env_pw and request.form.get("admin_password", "") == env_pw)
+    )
+
+    # Pass key through form posts
+    setup_key = url_key or ""
+
+    error = success = test_result = ""
+
+    base        = Path(os.environ.get("MICKEY_DATA", "/opt/mickey"))
+    config_path = base / "config.env"
+    existing    = {}
+    if config_path.exists():
+        for line in config_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, _, v = line.partition("=")
+                existing[k.strip()] = v.strip()
+
+    if request.method == "POST":
+        if not authed:
+            error = "Incorrect password or invalid setup key."
+        else:
+            existing["BREVO_API_KEY"]      = request.form.get("brevo_api_key", "").strip()
+            existing["MICKEY_OWNER_EMAIL"] = request.form.get("owner_email", "").strip()
+            existing["MICKEY_URL"]         = request.form.get("mickey_url", "https://askmickey.io").strip()
+            existing["MICKEY_FROM_EMAIL"]  = request.form.get("from_email", "noreply@askmickey.io").strip()
+            existing["MICKEY_FROM_NAME"]   = "Mickey Legal"
+            existing["MICKEY_HTTPS"]       = "true"
+
+            lines = [f"{k}={v}" for k, v in existing.items() if v]
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            config_path.chmod(0o600)
+
+            for k, v in existing.items():
+                if v:
+                    os.environ[k] = v
+
+            # Hot-reload email module constants
+            try:
+                import auth.email as em
+                em.BREVO_API_KEY = existing.get("BREVO_API_KEY", "")
+                em.OWNER_EMAIL   = existing.get("MICKEY_OWNER_EMAIL", "")
+                em.PLATFORM_URL  = existing.get("MICKEY_URL", "https://askmickey.io")
+                em.FROM_EMAIL    = existing.get("MICKEY_FROM_EMAIL", "noreply@askmickey.io")
+            except Exception:
+                pass
+
+            if request.form.get("send_test"):
+                test_to = request.form.get("test_email", "").strip()
+                if test_to:
+                    from auth.email import _send, _base_template, _h1, _p
+                    ok = _send(test_to, test_to, "Mickey — email test",
+                        _base_template(
+                            _h1("Email is working") +
+                            _p("This is a test from your Mickey platform. Brevo is configured correctly.")
+                        ))
+                    test_result = "Email sent successfully." if ok else "Send failed — check your Brevo API key."
+            else:
+                success = "Configuration saved."
+
+    brevo_set = bool(existing.get("BREVO_API_KEY"))
+
+    alert = ""
+    if error:
+        alert = f'''<div style="background:#FAEAE8;border:1px solid #E8BCBC;color:#C0392B;padding:12px 14px;border-radius:8px;margin-bottom:20px;font-size:13px;">{error}</div>'''
+    elif success:
+        alert = f'''<div style="background:#EAF1ED;border:1px solid #C4DACE;color:#1B4F40;padding:12px 14px;border-radius:8px;margin-bottom:20px;font-size:13px;">{success}</div>'''
+    elif test_result:
+        col = "#EAF1ED" if "successfully" in test_result else "#FAEAE8"
+        brd = "#C4DACE" if "successfully" in test_result else "#E8BCBC"
+        txt = "#1B4F40" if "successfully" in test_result else "#C0392B"
+        alert = f'''<div style="background:{col};border:1px solid {brd};color:{txt};padding:12px 14px;border-radius:8px;margin-bottom:20px;font-size:13px;">{test_result}</div>'''
+
+    brevo_badge = ('<span style="color:#1B4F40;font-size:11px;font-weight:600;">&#10003; Configured</span>'
+                   if brevo_set else
+                   '<span style="color:#C8A030;font-size:11px;font-weight:600;">&#9675; Not set</span>')
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mickey — Platform Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{font-family:'Inter',sans-serif;background:#1B4F40;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}}
+  .card{{background:#fff;border-radius:16px;padding:44px 48px;width:100%;max-width:500px;}}
+  h1{{font-family:'Lora',serif;font-size:22px;font-weight:500;color:#1B4F40;margin-bottom:4px;}}
+  .sub{{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;margin-bottom:32px;}}
+  label{{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;margin-bottom:6px;}}
+  input{{width:100%;padding:9px 12px;border:1px solid #D8D4CC;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:#1A1916;background:#fff;outline:none;margin-bottom:16px;}}
+  input:focus{{border-color:#1B4F40;}}
+  .btn{{width:100%;padding:10px;background:#1B4F40;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}}
+  .btn:hover{{background:#153D31;}}
+  .btn-ghost{{background:transparent;color:#1B4F40;border:1.5px solid #C4DACE;margin-top:8px;}}
+  .divider{{height:1px;background:#EAE6DF;margin:24px 0;}}
+  .badge-row{{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding:10px 14px;background:#F5F3EE;border-radius:8px;font-size:13px;color:#706C65;}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Mickey</h1>
+  <div class="sub">Platform Setup</div>
+
+  {alert}
+
+  <div class="badge-row">
+    Brevo email &nbsp; {brevo_badge}
+  </div>
+
+  <form method="POST" action="/platform-setup?key={setup_key}">
+    <label>Admin password (or use the URL key)</label>
+    <input type="password" name="admin_password" placeholder="Leave blank if using URL key">
+
+    <label>Brevo API key</label>
+    <input type="password" name="brevo_api_key" value="{existing.get("BREVO_API_KEY","")}" placeholder="xkeysib-...">
+
+    <label>Your email (receives new registration alerts)</label>
+    <input type="email" name="owner_email" value="{existing.get("MICKEY_OWNER_EMAIL","")}" placeholder="you@yourfirm.be">
+
+    <label>Platform URL</label>
+    <input type="text" name="mickey_url" value="{existing.get("MICKEY_URL","https://askmickey.io")}">
+
+    <label>From email address</label>
+    <input type="text" name="from_email" value="{existing.get("MICKEY_FROM_EMAIL","noreply@askmickey.io")}">
+
+    <button type="submit" class="btn">Save configuration</button>
+
+    <div class="divider"></div>
+
+    <label>Send test email to</label>
+    <input type="email" name="test_email" placeholder="your@email.com">
+    <button type="submit" name="send_test" value="1" class="btn btn-ghost">Send test email</button>
+  </form>
+</div>
+</body>
+</html>"""
+
+
 # ════════════════════════════════════════════════════════════════
 # TEMPORARY RESET ROUTE — REMOVE AFTER USE
 # ════════════════════════════════════════════════════════════════

@@ -1,0 +1,63 @@
+# .github/workflows/deploy.yml
+#
+# Mickey — Auto-deploy to Hetzner on push to main
+# Environment variables are stored as GitHub Secrets (encrypted)
+# and written to /opt/mickey/config.env on the server.
+# They are NEVER stored in the repository.
+#
+# Setup (one time):
+# 1. GitHub → your repo → Settings → Secrets and variables → Actions
+# 2. Add these secrets:
+#    HETZNER_SSH_KEY     → your server's private SSH key (paste the whole thing)
+#    BREVO_API_KEY       → xkeysib-...
+#    MICKEY_OWNER_EMAIL  → your email
+#    MICKEY_SECRET       → a long random string (generate one at random.org)
+#
+# After adding secrets, push any commit and this workflow runs automatically.
+
+name: Deploy Mickey
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 46.225.190.164
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            # Pull latest code
+            cd /opt/mickey
+            git pull origin main
+
+            # Write environment config (secrets never touch GitHub)
+            cat > /opt/mickey/config.env << 'ENVEOF'
+            BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}
+            MICKEY_OWNER_EMAIL=${{ secrets.MICKEY_OWNER_EMAIL }}
+            MICKEY_SECRET=${{ secrets.MICKEY_SECRET }}
+            MICKEY_URL=https://askmickey.io
+            MICKEY_FROM_EMAIL=noreply@askmickey.io
+            MICKEY_FROM_NAME=Mickey Legal
+            MICKEY_DATA=/opt/mickey
+            MICKEY_HTTPS=true
+            ENVEOF
+
+            # Secure the config file (root only)
+            chmod 600 /opt/mickey/config.env
+
+            # Install/update dependencies
+            pip install -r requirements.txt -q
+
+            # Restart Mickey
+            systemctl restart mickey
+            echo "Deploy complete"
