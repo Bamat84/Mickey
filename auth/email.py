@@ -32,7 +32,20 @@ from pathlib import Path
 BREVO_API_KEY   = os.environ.get("BREVO_API_KEY", "")
 BREVO_SEND_URL  = "https://api.brevo.com/v3/smtp/email"
 
-FROM_EMAIL      = os.environ.get("MICKEY_FROM_EMAIL", "noreply@askmickey.io")
+# Load config.env if env vars not set
+from pathlib import Path as _Path
+for _cp in [_Path("/opt/mickey/config.env"), _Path(__file__).parent.parent / "config.env"]:
+    if _cp.exists():
+        for _line in _cp.read_text(encoding="utf-8").splitlines():
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _, _v = _line.partition("=")
+                os.environ.setdefault(_k.strip(), _v.strip())
+        break
+
+BREVO_API_KEY   = os.environ.get("BREVO_API_KEY", "")
+
+FROM_EMAIL      = os.environ.get("MICKEY_FROM_EMAIL", "mathias.baert@lex-it.be")
 FROM_NAME       = os.environ.get("MICKEY_FROM_NAME",  "Mickey Legal")
 PLATFORM_URL    = os.environ.get("MICKEY_URL",        "https://askmickey.io")
 
