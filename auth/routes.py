@@ -906,6 +906,55 @@ h2{{color:#1B4F40;margin-bottom:12px;}}p{{color:#706C65;font-size:14px;line-heig
 
 
 
+
+
+@auth_bp.route("/platform-debug-reset")
+def debug_reset():
+    """Temporary: debug password reset flow."""
+    import os, hashlib
+    from pathlib import Path
+
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return "Not found", 404
+
+    email = request.args.get("email", "").strip().lower()
+    if not email:
+        return "Add ?email=your@email.com to the URL", 400
+
+    steps = []
+
+    # Step 1: check env vars
+    steps.append(f"BREVO_API_KEY set: {bool(os.environ.get('BREVO_API_KEY'))}")
+    steps.append(f"MICKEY_URL: {os.environ.get('MICKEY_URL','not set')}")
+
+    # Step 2: find user
+    firm, user = find_user_by_email(email)
+    steps.append(f"Firm found: {bool(firm)} — {firm.get('firm_name','') if firm else 'none'}")
+    steps.append(f"User found: {bool(user)} — {user.get('display_name','') if user else 'none'}")
+    if user:
+        steps.append(f"Email verified: {user.get('email_verified')}")
+        steps.append(f"Firm status: {firm.get('status') if firm else 'n/a'}")
+
+    # Step 3: try sending
+    if firm and user:
+        token = create_password_reset_token(email, firm["firm_id"], user["user_id"])
+        steps.append(f"Token created: {token[:12]}...")
+        ok = send_password_reset_email(email, user["display_name"], token)
+        steps.append(f"Email sent: {ok}")
+    else:
+        steps.append("Skipping email — user not found")
+
+    rows = "".join(f"<tr><td style='padding:8px 12px;border-bottom:1px solid #eee;font-family:monospace;font-size:13px;'>{s}</td></tr>" for s in steps)
+    return f"""<html><body style="font-family:sans-serif;padding:40px;background:#F5F3EE;">
+    <h2 style="color:#1B4F40;">Password Reset Debug</h2>
+    <p style="color:#706C65;margin-bottom:20px;">Email: {email}</p>
+    <table style="background:#fff;border-radius:8px;border:1px solid #ddd;border-collapse:collapse;width:100%;max-width:600px;">{rows}</table>
+    </body></html>"""
+
+
+
 # ════════════════════════════════════════════════════════════════
 # TEMPORARY RESET ROUTE — REMOVE AFTER USE
 # ════════════════════════════════════════════════════════════════
