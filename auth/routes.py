@@ -1793,6 +1793,3 @@ def temp_reset_registration():
     </body></html>
     """
 
-@auth_bp.route("/debug-session")
-def debug_session():
-    return jsonify(dict(session))
