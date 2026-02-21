@@ -955,6 +955,84 @@ def debug_reset():
 
 
 
+
+
+@auth_bp.route("/platform-reset-pw", methods=["GET", "POST"])
+def platform_reset_pw():
+    """Direct password reset — no email needed. Admin only."""
+    import os, hashlib
+    from pathlib import Path
+
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return "Not found", 404
+
+    message = ""
+    if request.method == "POST":
+        email    = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+        confirm  = request.form.get("confirm", "")
+
+        if password != confirm:
+            message = "error:Passwords do not match."
+        elif len(password) < 8:
+            message = "error:Password must be at least 8 characters."
+        else:
+            firm, user = find_user_by_email(email)
+            if not firm or not user:
+                message = "error:Email not found."
+            else:
+                hashed = hash_pw(password)
+                update_user_field(firm, user["user_id"], hashed=hashed)
+                message = "ok:Password updated. You can now sign in."
+
+    col = "#EAF1ED" if message.startswith("ok:") else "#FAEAE8"
+    brd = "#C4DACE" if message.startswith("ok:") else "#E8BCBC"
+    txt = "#1B4F40" if message.startswith("ok:") else "#C0392B"
+    msg_html = f'''<div style="background:{col};border:1px solid {brd};color:{txt};padding:12px 14px;border-radius:8px;margin-bottom:20px;font-size:13px;font-weight:500;">{message.split(":",1)[1]}</div>''' if message else ""
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mickey — Reset Password</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{font-family:'Inter',sans-serif;background:#1B4F40;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}}
+  .card{{background:#fff;border-radius:16px;padding:44px 48px;width:100%;max-width:440px;}}
+  h1{{font-family:'Lora',serif;font-size:22px;font-weight:500;color:#1B4F40;margin-bottom:4px;}}
+  .sub{{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;margin-bottom:28px;}}
+  label{{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;margin-bottom:6px;}}
+  input{{width:100%;padding:9px 12px;border:1px solid #D8D4CC;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;color:#1A1916;outline:none;margin-bottom:16px;}}
+  input:focus{{border-color:#1B4F40;}}
+  .btn{{width:100%;padding:10px;background:#1B4F40;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}}
+  .btn:hover{{background:#153D31;}}
+  a{{color:#1B4F40;font-size:12px;}}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Mickey</h1>
+  <div class="sub">Direct Password Reset</div>
+  {msg_html}
+  <form method="POST" action="/platform-reset-pw?key={url_key}">
+    <label>Email address</label>
+    <input type="email" name="email" required>
+    <label>New password</label>
+    <input type="password" name="password" required>
+    <label>Confirm password</label>
+    <input type="password" name="confirm" required>
+    <button type="submit" class="btn">Set new password</button>
+  </form>
+  <p style="margin-top:16px;"><a href="/signin">Go to sign in</a></p>
+</div>
+</body>
+</html>"""
+
+
+
 # ════════════════════════════════════════════════════════════════
 # TEMPORARY RESET ROUTE — REMOVE AFTER USE
 # ════════════════════════════════════════════════════════════════
