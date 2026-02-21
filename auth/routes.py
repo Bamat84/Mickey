@@ -480,7 +480,7 @@ def accept_invite():
 @auth_bp.route("/auth/signout", methods=["POST"])
 def signout():
     session.clear()
-    return jsonify({"ok": True, "redirect": "/"})
+    return jsonify({"ok": True, "redirect": "/signin"})
 
 
 @auth_bp.route("/terms")
@@ -828,16 +828,6 @@ def firm_logout():
     _log_auth_event("logout", session.get("email", ""), True)
     session.clear()
     return jsonify({"ok": True, "redirect": "/signin"})
-
-
-@auth_bp.route("/signout")
-def signout():
-    _log_auth_event("logout", session.get("email", ""), True)
-    session.clear()
-    return redirect("/signin")
-
-
-
 
 
 # ════════════════════════════════════════════════════════════════
@@ -1802,3 +1792,7 @@ def temp_reset_registration():
     </p>
     </body></html>
     """
+
+@auth_bp.route("/debug-session")
+def debug_session():
+    return jsonify(dict(session))

@@ -2403,7 +2403,7 @@ async function doRegister(){
 }
 
 async function doSignout(){
-  await fetch('/api/auth/logout',{method:'POST'});
+  await fetch("/api/auth/logout",{method:"POST"}); window.location.href="/signin"; return;
   document.getElementById('app').classList.remove('visible');
   document.getElementById('auth-screen').style.display='flex';
   chatHistory=[];
