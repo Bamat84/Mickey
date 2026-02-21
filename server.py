@@ -15,6 +15,26 @@ New features:
 - Usage dashboard data
 """
 
+# ── Config loader — ADD THIS AT THE VERY TOP OF server.py ─────
+# Loads /opt/mickey/config.env into environment variables on startup.
+# Must be the first thing that runs, before any other imports.
+
+import os
+from pathlib import Path
+
+for _p in [
+    Path("/opt/mickey/config.env"),
+    Path(__file__).parent / "config.env",
+]:
+    if _p.exists():
+        for _line in _p.read_text(encoding="utf-8").splitlines():
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _, _v = _line.partition("=")
+                os.environ.setdefault(_k.strip(), _v.strip())
+        break
+
+# ── END CONFIG LOADER ─────────────────────────────────────────
 import os, json, re, secrets, base64, hashlib, datetime, io, time, shutil
 from pathlib import Path
 from functools import wraps
