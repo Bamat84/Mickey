@@ -1,0 +1,14 @@
+name: Add SSH Key
+on: workflow_dispatch
+jobs:
+  add-key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add SSH key to server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 46.225.190.164
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJkc0NUc2AvvFKYdDnwskzmaKtg9K0sAyMcSe6c7lb9R mickey" >> ~/.ssh/authorized_keys
