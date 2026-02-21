@@ -360,3 +360,18 @@ def send_password_reset_email(
            "your password has not been changed.")
     )
     return _send(to_email, display_name, "Reset your Mickey password", _base_template(content))
+
+def send_invite_email(to_email: str, display_name: str, firm_name: str,
+                      invited_by: str, token: str) -> bool:
+    """Send team invite email."""
+    invite_url = f"{PLATFORM_URL}/invite/{token}"
+    body = _base_template(
+        _h1(f"You\'re invited to join {firm_name} on Mickey") +
+        _p(f"Hi {display_name or to_email},") +
+        _p(f"{invited_by} has invited you to join <strong>{firm_name}</strong> on Mickey Legal Intelligence.") +
+        _btn("Accept invitation", invite_url) +
+        _p(f"This invitation expires in 7 days.") +
+        _p("If you weren\'t expecting this invitation, you can safely ignore this email.")
+    )
+    return _send(to_email, display_name or to_email,
+                 f"You\'re invited to join {firm_name} on Mickey", body)

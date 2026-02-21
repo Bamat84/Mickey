@@ -1,0 +1,130 @@
+{% extends "auth/base.html" %}
+{% block title %}Privacy & Data — Mickey{% endblock %}
+{% block content %}
+<style>
+  .wrap{max-width:640px;margin:0 auto;padding:40px 24px;}
+  .page-title{font-family:var(--font-serif);font-size:26px;color:var(--green);margin-bottom:4px;}
+  .page-sub{font-size:12px;color:var(--text-muted);margin-bottom:32px;}
+  .section{background:#fff;border:1px solid var(--cream-mid);border-radius:12px;padding:28px;margin-bottom:16px;}
+  .section-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .section-desc{font-size:12px;color:var(--text-muted);line-height:1.6;margin-bottom:18px;}
+  .btn{display:inline-block;padding:9px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font-sans);letter-spacing:.03em;}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-green:hover{background:#153D31;}
+  .btn-outline{background:#fff;color:var(--text-mid);border:1px solid var(--cream-dark);}
+  .btn-outline:hover{border-color:var(--green);color:var(--green);}
+  .btn-red{background:#fff;color:var(--red);border:1px solid var(--red-border);}
+  .btn-red:hover{background:var(--red-bg);}
+  .alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;}
+  .alert-ok{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);}
+  .alert-err{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);}
+  .back-link{font-size:12px;color:var(--green);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:20px;}
+  .confirm-box{margin-top:14px;display:none;}
+  .confirm-box input{width:100%;padding:8px 11px;border:1px solid var(--red-border);border-radius:8px;font-family:var(--font-sans);font-size:13px;outline:none;margin-bottom:10px;}
+  .danger-zone{border-color:var(--red-border);}
+  .danger-title{color:var(--red);}
+</style>
+
+<div class="wrap">
+  <a href="/app" class="back-link">← Back to Mickey</a>
+  <div class="page-title">Privacy & Data</div>
+  <div class="page-sub">Your GDPR rights under Articles 15-20 · {{ firm_name }}</div>
+
+  <div id="alert-box"></div>
+
+  <!-- Export -->
+  <div class="section">
+    <div class="section-title">Export your data</div>
+    <div class="section-desc">
+      Download a copy of all personal data Mickey holds about you — your account details, firm information and preferences. 
+      Document content and AI queries are not stored and therefore not included (GDPR Art. 20).
+    </div>
+    <button class="btn btn-green" onclick="exportData()">Download data export</button>
+  </div>
+
+  <!-- What we store -->
+  <div class="section">
+    <div class="section-title">What Mickey stores about you</div>
+    <div class="section-desc">
+      <strong>Stored:</strong> your name, email address, role, account creation date, last sign-in time, and T&amp;C acceptance timestamp.<br><br>
+      <strong>Not stored:</strong> document content (processed in memory only), AI queries and responses, browser or device data.<br><br>
+      <strong>Logs:</strong> anonymised usage events (timestamps + event type) retained for 12 months for service monitoring. No question content is ever logged.
+    </div>
+  </div>
+
+  <!-- Delete account -->
+  <div class="section">
+    <div class="section-title">Delete your account</div>
+    <div class="section-desc">
+      Request deletion of your personal account. Your account will be removed within 30 days (GDPR Art. 17).
+      Your firm's data and other team members are not affected.
+    </div>
+    <button class="btn btn-outline" onclick="document.getElementById('del-user-box').style.display='block';this.style.display='none';">Request account deletion</button>
+    <div class="confirm-box" id="del-user-box">
+      <p style="font-size:12px;color:var(--red);margin-bottom:10px;">This will permanently delete your account. You will be signed out immediately.</p>
+      <input type="email" id="del-user-confirm" placeholder="Type your email address to confirm: {{ email }}">
+      <button class="btn btn-red" onclick="deleteAccount()">Permanently delete my account</button>
+    </div>
+  </div>
+
+  <!-- Delete firm (admin only) -->
+  {% if session.get('role') == 'admin' %}
+  <div class="section danger-zone">
+    <div class="section-title danger-title">Delete entire firm</div>
+    <div class="section-desc">
+      As firm admin you can request deletion of the entire firm account and all associated data.
+      This affects all team members. All corporate data, documents and settings will be permanently deleted within 30 days.
+      <strong>This cannot be undone.</strong>
+    </div>
+    <button class="btn btn-red" onclick="document.getElementById('del-firm-box').style.display='block';this.style.display='none';">Request firm deletion</button>
+    <div class="confirm-box" id="del-firm-box">
+      <p style="font-size:12px;color:var(--red);margin-bottom:10px;">Type <strong>DELETE MY FIRM</strong> to confirm permanent deletion of all firm data.</p>
+      <input type="text" id="del-firm-confirm" placeholder="DELETE MY FIRM">
+      <button class="btn btn-red" onclick="deleteFirm()">Permanently delete firm and all data</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <p style="font-size:11px;color:var(--text-muted);margin-top:20px;line-height:1.6;">
+    Questions about your data? Contact <a href="mailto:hello@askmickey.io" style="color:var(--green);">hello@askmickey.io</a>. 
+    Supervisory authority: <a href="https://www.gegevensbeschermingsautoriteit.be" style="color:var(--green);" target="_blank">GBA/APD Brussels</a>.
+  </p>
+</div>
+
+<script>
+function showAlert(msg, ok=true) {
+  const b = document.getElementById('alert-box');
+  b.innerHTML = `<div class="alert ${ok?'alert-ok':'alert-err'}">${msg}</div>`;
+  setTimeout(() => b.innerHTML='', 5000);
+}
+
+async function exportData() {
+  const r = await fetch('/api/gdpr/export', { method: 'POST' });
+  if (!r.ok) { showAlert('Export failed', false); return; }
+  const blob = await r.blob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'mickey-data-export.json';
+  a.click();
+}
+
+async function deleteAccount() {
+  const email = document.getElementById('del-user-confirm').value.trim();
+  if (email !== '{{ email }}') { showAlert('Email does not match', false); return; }
+  if (!confirm('This will permanently delete your account. Continue?')) return;
+  const r = await fetch('/api/gdpr/request-deletion', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+  const d = await r.json();
+  if (d.ok) { showAlert(d.message); setTimeout(() => window.location='/signin', 2000); }
+  else showAlert(d.error || 'Failed', false);
+}
+
+async function deleteFirm() {
+  const val = document.getElementById('del-firm-confirm').value.trim();
+  const r = await fetch('/api/gdpr/delete-firm', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({confirm: val}) });
+  const d = await r.json();
+  if (d.ok) { showAlert(d.message); setTimeout(() => window.location='/signin', 3000); }
+  else showAlert(d.error || 'Failed', false);
+}
+</script>
+{% endblock %}

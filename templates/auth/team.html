@@ -1,0 +1,162 @@
+{% extends "auth/base.html" %}
+{% block title %}Team — {{ firm.firm_name }}{% endblock %}
+{% block content %}
+<style>
+  .team-wrap{max-width:700px;margin:0 auto;padding:40px 24px;}
+  .team-header{margin-bottom:28px;}
+  .team-title{font-family:var(--font-serif);font-size:26px;color:var(--green);margin-bottom:4px;}
+  .team-sub{font-size:12px;color:var(--text-muted);}
+  .team-card{background:#fff;border:1px solid var(--cream-mid);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+  .team-card-header{padding:16px 20px;border-bottom:1px solid var(--cream-mid);display:flex;align-items:center;justify-content:space-between;}
+  .team-card-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);}
+  .user-row{display:flex;align-items:center;padding:14px 20px;border-bottom:1px solid var(--cream-mid);gap:12px;}
+  .user-row:last-child{border-bottom:none;}
+  .user-avatar{width:36px;height:36px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:15px;flex-shrink:0;}
+  .user-info{flex:1;}
+  .user-name{font-size:13px;font-weight:500;color:var(--text);}
+  .user-email{font-size:11px;color:var(--text-muted);}
+  .user-actions{display:flex;align-items:center;gap:8px;}
+  .role-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:var(--cream-mid);color:var(--text-mid);}
+  .role-badge.admin{background:var(--green-light);color:var(--green);}
+  .btn-sm{font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--cream-dark);background:#fff;color:var(--text-mid);cursor:pointer;font-family:var(--font-sans);}
+  .btn-sm:hover{border-color:var(--green);color:var(--green);}
+  .btn-sm.danger:hover{border-color:var(--red);color:var(--red);}
+  .invite-form{padding:20px;}
+  .form-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .form-group{flex:1;min-width:180px;}
+  .form-group label{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;}
+  .form-group input,.form-group select{width:100%;padding:8px 11px;border:1px solid var(--cream-dark);border-radius:8px;font-family:var(--font-sans);font-size:13px;color:var(--text);background:var(--cream);outline:none;}
+  .form-group input:focus,.form-group select:focus{border-color:var(--green);background:#fff;}
+  .btn-primary{background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-family:var(--font-sans);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.04em;}
+  .btn-primary:hover{background:#153D31;}
+  .alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:16px;}
+  .alert-success{background:var(--green-light);border:1px solid var(--green-border);color:var(--green);}
+  .alert-error{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);}
+  .back-link{font-size:12px;color:var(--green);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:20px;}
+</style>
+
+<div class="team-wrap">
+  <a href="/app" class="back-link">← Back to Mickey</a>
+  <div class="team-header">
+    <div class="team-title">Team</div>
+    <div class="team-sub">{{ firm.firm_name }} · {{ users|length }} member{{ 's' if users|length != 1 }}</div>
+  </div>
+
+  <div id="alert-box"></div>
+
+  <!-- Current team -->
+  <div class="team-card">
+    <div class="team-card-header">
+      <span class="team-card-title">Members</span>
+    </div>
+    {% for u in users %}
+    <div class="user-row" id="user-{{ u.user_id }}">
+      <div class="user-avatar">{{ u.display_name[0]|upper if u.display_name else '?' }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ u.display_name }}{% if u.user_id == current_user_id %} <span style="font-size:10px;color:var(--text-muted);">(you)</span>{% endif %}</div>
+        <div class="user-email">{{ u.email }}</div>
+      </div>
+      <div class="user-actions">
+        <span class="role-badge {{ 'admin' if u.role == 'admin' }}">{{ u.role|replace('_',' ')|title }}</span>
+        {% if u.user_id != current_user_id %}
+        <select class="btn-sm" onchange="changeRole('{{ u.user_id }}', this.value)" style="padding:4px 8px;">
+          <option value="admin" {{ 'selected' if u.role == 'admin' }}>Admin</option>
+          <option value="member" {{ 'selected' if u.role == 'member' }}>Member</option>
+          <option value="knowledge_curator" {{ 'selected' if u.role == 'knowledge_curator' }}>Curator</option>
+        </select>
+        <button class="btn-sm danger" onclick="removeUser('{{ u.user_id }}', '{{ u.display_name }}')">Remove</button>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Invite form -->
+  <div class="team-card">
+    <div class="team-card-header">
+      <span class="team-card-title">Invite a team member</span>
+    </div>
+    <div class="invite-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full name</label>
+          <input type="text" id="invite-name" placeholder="Jane Smith">
+        </div>
+        <div class="form-group">
+          <label>Work email (@{{ firm.email_domain }})</label>
+          <input type="email" id="invite-email" placeholder="jane@{{ firm.email_domain }}">
+        </div>
+        <div class="form-group" style="max-width:140px;">
+          <label>Role</label>
+          <select id="invite-role">
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+            <option value="knowledge_curator">Curator</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="sendInvite()">Send invitation</button>
+    </div>
+  </div>
+
+  <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+    Invitations expire after 7 days. Team members must use a <strong>@{{ firm.email_domain }}</strong> email address.
+  </p>
+</div>
+
+<script>
+function showAlert(msg, isError=false) {
+  const box = document.getElementById('alert-box');
+  box.innerHTML = `<div class="alert ${isError ? 'alert-error' : 'alert-success'}">${msg}</div>`;
+  setTimeout(() => box.innerHTML = '', 4000);
+}
+
+async function sendInvite() {
+  const email = document.getElementById('invite-email').value.trim();
+  const name  = document.getElementById('invite-name').value.trim();
+  const role  = document.getElementById('invite-role').value;
+  if (!email) { showAlert('Email is required', true); return; }
+
+  const r = await fetch('/api/team/invite', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({email, display_name: name, role})
+  });
+  const d = await r.json();
+  if (d.ok) {
+    showAlert(`Invitation sent to ${email}`);
+    document.getElementById('invite-email').value = '';
+    document.getElementById('invite-name').value = '';
+  } else {
+    showAlert(d.error || 'Failed to send invite', true);
+  }
+}
+
+async function changeRole(userId, role) {
+  const r = await fetch('/api/team/change-role', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user_id: userId, role})
+  });
+  const d = await r.json();
+  if (d.ok) showAlert('Role updated');
+  else showAlert(d.error || 'Failed to update role', true);
+}
+
+async function removeUser(userId, name) {
+  if (!confirm(`Remove ${name} from the team?`)) return;
+  const r = await fetch('/api/team/remove', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user_id: userId})
+  });
+  const d = await r.json();
+  if (d.ok) {
+    document.getElementById(`user-${userId}`).remove();
+    showAlert(`${name} removed`);
+  } else {
+    showAlert(d.error || 'Failed to remove user', true);
+  }
+}
+</script>
+{% endblock %}

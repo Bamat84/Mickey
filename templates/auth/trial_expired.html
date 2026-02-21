@@ -1,0 +1,21 @@
+{% extends "auth/base.html" %}
+{% block title %}Trial Expired — Mickey{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:80px auto;padding:0 24px;text-align:center;">
+  <div style="width:64px;height:64px;border-radius:50%;background:var(--amber-bg);border:1px solid var(--amber-border);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#C8A030" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+  <h1 style="font-family:var(--font-serif);font-size:26px;color:var(--text);margin-bottom:12px;">Trial period ended</h1>
+  <p style="color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:32px;">
+    The 30-day trial for <strong>{{ firm_name }}</strong> has expired.<br>
+    Contact us to continue using Mickey.
+  </p>
+  <a href="mailto:hello@askmickey.io?subject=Mickey subscription - {{ firm_name }}"
+     style="display:inline-block;background:var(--green);color:#fff;padding:11px 28px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.04em;">
+    Contact us to continue
+  </a>
+  <p style="margin-top:24px;font-size:12px;color:var(--text-muted);">
+    <a href="/signout" style="color:var(--text-muted);">Sign out</a>
+  </p>
+</div>
+{% endblock %}

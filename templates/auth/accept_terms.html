@@ -1,0 +1,28 @@
+{% extends "auth/base.html" %}
+{% block title %}Updated Terms — Mickey{% endblock %}
+{% block content %}
+<div style="max-width:500px;margin:80px auto;padding:0 24px;text-align:center;">
+  <div style="width:56px;height:56px;border-radius:50%;background:var(--green-light);border:1px solid var(--green-border);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B4F40" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  </div>
+  <h1 style="font-family:var(--font-serif);font-size:24px;color:var(--text);margin-bottom:12px;">Updated Terms of Service</h1>
+  <p style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:28px;">
+    Hi {{ display_name }}, Mickey's Terms of Service have been updated (v{{ tc_version }}).
+    Please review and accept to continue using Mickey.
+  </p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <a href="/terms" target="_blank" style="display:inline-block;border:1px solid var(--cream-dark);color:var(--text-mid);padding:10px 20px;border-radius:8px;font-size:12px;font-weight:500;text-decoration:none;">Read Terms of Service</a>
+    <button onclick="accept()" style="background:var(--green);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-sans);">I accept the updated terms</button>
+  </div>
+  <p style="margin-top:20px;font-size:11px;color:var(--text-muted);">
+    <a href="/signout" style="color:var(--text-muted);">Sign out instead</a>
+  </p>
+</div>
+<script>
+async function accept() {
+  const r = await fetch('/api/accept-terms', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  const d = await r.json();
+  if (d.ok) window.location = d.redirect || '/app';
+}
+</script>
+{% endblock %}

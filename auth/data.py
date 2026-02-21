@@ -602,3 +602,103 @@ def list_all_firms() -> list:
 
 def _firm_path(firm_id: str):
     return FIRMS_DIR / f"{firm_id}.json"
+
+def save_firm(firm: dict) -> None:
+    """Save firm data atomically."""
+    firm_id = firm.get("firm_id", "")
+    if not firm_id:
+        return
+    path = FIRMS_DIR / f"{firm_id}.json"
+    _atomic_write(path, firm)
+
+
+def create_invite_token(firm_id: str, email: str, display_name: str,
+                        role: str, invited_by: str) -> str:
+    """Create a secure invite token for a new team member."""
+    token    = _random_token()
+    expires  = (datetime.datetime.utcnow() + datetime.timedelta(days=7)).isoformat()
+    rec = {
+        "token":        token,
+        "type":         "invite",
+        "firm_id":      firm_id,
+        "email":        email,
+        "display_name": display_name,
+        "role":         role,
+        "invited_by":   invited_by,
+        "created_at":   datetime.datetime.utcnow().isoformat(),
+        "expires_at":   expires,
+        "used":         False,
+    }
+    _atomic_write(TOKENS_DIR / f"{token}.json", rec)
+    return token
+
+
+def update_user_field(firm: dict, user_id: str, **kwargs) -> None:
+    """Update fields on a user record and save the firm."""
+    if user_id not in firm.get("users", {}):
+        return
+    firm["users"][user_id].update(kwargs)
+    firm["updated_at"] = datetime.datetime.utcnow().isoformat()
+    save_firm(firm)
+
+def get_trial_status(firm: dict) -> dict:
+    """Return trial status info for a firm."""
+    import datetime as _dt
+    status     = firm.get("status", "pending_approval")
+    created_at = firm.get("created_at", "")
+    approved_at= firm.get("approved_at", "")
+
+    if status not in ("trial", "active"):
+        return {"status": status, "days_left": 0, "expired": False}
+
+    if status == "active":
+        return {"status": "active", "days_left": 999, "expired": False}
+
+    # Calculate trial days remaining
+    start_str = approved_at or created_at
+    try:
+        start = _dt.datetime.fromisoformat(start_str)
+        trial_days = int(firm.get("trial_days", 30))
+        expires    = start + _dt.timedelta(days=trial_days)
+        now        = _dt.datetime.utcnow()
+        days_left  = (expires - now).days
+        expired    = days_left < 0
+        return {
+            "status":    "expired" if expired else "trial",
+            "days_left": max(0, days_left),
+            "expires_at": expires.isoformat(),
+            "expired":   expired,
+        }
+    except Exception:
+        return {"status": "trial", "days_left": 30, "expired": False}
+
+
+def extend_trial(firm_id: str, extra_days: int = 30) -> bool:
+    """Platform admin: extend a firm's trial."""
+    firm = load_firm(firm_id)
+    if not firm:
+        return False
+    firm["trial_days"] = int(firm.get("trial_days", 30)) + extra_days
+    save_firm(firm)
+    return True
+
+# ════════════════════════════════════════════════════════════════
+# T&C VERSIONING
+# ════════════════════════════════════════════════════════════════
+
+CURRENT_TC_VERSION = "1.0"  # Bump this when T&Cs change
+
+def needs_tc_reaccept(user: dict) -> bool:
+    """Returns True if user needs to re-accept updated T&Cs."""
+    accepted_version = user.get("tc_version_accepted", "")
+    return accepted_version != CURRENT_TC_VERSION
+
+
+def record_tc_acceptance(firm: dict, user_id: str) -> None:
+    """Record T&C acceptance with version and timestamp."""
+    import datetime as _dt
+    if user_id not in firm.get("users", {}):
+        return
+    firm["users"][user_id]["tc_accepted_at"]       = _dt.datetime.utcnow().isoformat()
+    firm["users"][user_id]["tc_version_accepted"]  = CURRENT_TC_VERSION
+    save_firm(firm)

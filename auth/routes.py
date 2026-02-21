@@ -132,6 +132,7 @@ def _firm_session(firm, user) -> None:
     session["role"]         = user["role"]
     session["firm_name"]    = firm["firm_name"]
     session["firm_status"]  = firm["status"]
+    session["username"]     = user["email"]   # bridge: old Mickey app uses session["username"]
     session.permanent       = True
 
 
@@ -577,6 +578,726 @@ def do_reset_password():
 
     return jsonify({"ok": True})
 
+
+
+
+
+
+
+
+@auth_bp.route("/trial-expired")
+def trial_expired():
+    """Shown when a firm's trial has expired."""
+    firm_name = session.get("firm_name", "your firm")
+    return render_template("auth/trial_expired.html", firm_name=firm_name)
+
+
+
+
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 12 — T&C VERSIONING + AI DISCLAIMER
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/accept-terms")
+def accept_terms_page():
+    """Shown when T&Cs have been updated and user needs to re-accept."""
+    if not session.get("firm_id"):
+        return redirect("/signin")
+    from auth.data import needs_tc_reaccept, CURRENT_TC_VERSION
+    firm = load_firm(session["firm_id"])
+    user_id = session.get("user_id","")
+    if not firm or user_id not in firm.get("users",{}):
+        return redirect("/signin")
+    user = firm["users"][user_id]
+    if not needs_tc_reaccept(user):
+        return redirect("/app")
+    return render_template("auth/accept_terms.html",
+        display_name=session.get("display_name",""),
+        tc_version=CURRENT_TC_VERSION,
+    )
+
+
+@auth_bp.route("/api/accept-terms", methods=["POST"])
+def api_accept_terms():
+    """Record T&C acceptance."""
+    if not session.get("firm_id"):
+        return jsonify({"error": "Not authenticated"}), 401
+    from auth.data import record_tc_acceptance
+    firm    = load_firm(session["firm_id"])
+    user_id = session.get("user_id","")
+    if not firm or user_id not in firm.get("users",{}):
+        return jsonify({"error": "User not found"}), 404
+    record_tc_acceptance(firm, user_id)
+    _log_auth_event("tc_accepted", session.get("email",""), True)
+    return jsonify({"ok": True, "redirect": "/app"})
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 11 — GDPR DATA RIGHTS (export + deletion)
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/settings/privacy")
+def privacy_settings():
+    """GDPR data rights page — export and deletion."""
+    if not session.get("firm_id"):
+        return redirect("/signin")
+    return render_template("auth/privacy_settings.html",
+        display_name=session.get("display_name",""),
+        email=session.get("email",""),
+        firm_name=session.get("firm_name",""),
+    )
+
+
+@auth_bp.route("/api/gdpr/export", methods=["POST"])
+def gdpr_export():
+    """GDPR Art. 20 — data portability. Export all user data as JSON."""
+    if not session.get("firm_id"):
+        return jsonify({"error": "Not authenticated"}), 401
+
+    import json as _json, datetime as _dt
+    firm    = load_firm(session["firm_id"])
+    user_id = session.get("user_id","")
+
+    if not firm or user_id not in firm.get("users",{}):
+        return jsonify({"error": "User not found"}), 404
+
+    user = firm["users"][user_id]
+
+    export = {
+        "export_date":    _dt.datetime.utcnow().isoformat(),
+        "export_version": "1.0",
+        "subject":        "Mickey personal data export (GDPR Art. 20)",
+        "personal_data": {
+            "display_name": user.get("display_name",""),
+            "email":        user.get("email",""),
+            "role":         user.get("role",""),
+            "created_at":   user.get("created_at",""),
+            "last_signin":  user.get("last_signin",""),
+            "tc_accepted_at": user.get("tc_accepted_at",""),
+        },
+        "firm_data": {
+            "firm_name":    firm.get("firm_name",""),
+            "email_domain": firm.get("email_domain",""),
+            "status":       firm.get("status",""),
+            "created_at":   firm.get("created_at",""),
+        },
+        "note": "Document content, AI query content and usage logs are not included in this export as they are processed transiently and not stored persistently per Mickey's privacy policy."
+    }
+
+    _log_auth_event("gdpr_export", session.get("email",""), True)
+
+    from flask import Response
+    return Response(
+        _json.dumps(export, indent=2, ensure_ascii=False),
+        mimetype="application/json",
+        headers={"Content-Disposition": f"attachment; filename=mickey-data-export-{_dt.date.today()}.json"}
+    )
+
+
+@auth_bp.route("/api/gdpr/request-deletion", methods=["POST"])
+def gdpr_request_deletion():
+    """GDPR Art. 17 — right to erasure. Flags account for deletion."""
+    if not session.get("firm_id"):
+        return jsonify({"error": "Not authenticated"}), 401
+
+    import datetime as _dt
+    firm    = load_firm(session["firm_id"])
+    user_id = session.get("user_id","")
+    email   = session.get("email","")
+
+    if not firm or user_id not in firm.get("users",{}):
+        return jsonify({"error": "User not found"}), 404
+
+    # Mark user for deletion
+    firm["users"][user_id]["deletion_requested_at"] = _dt.datetime.utcnow().isoformat()
+    firm["users"][user_id]["deletion_requested"]    = True
+    save_firm(firm)
+
+    # Notify platform owner
+    from auth.email import _send, _base_template, _h1, _p, PLATFORM_URL
+    import os
+    owner_email = os.environ.get("MICKEY_OWNER_EMAIL","")
+    if owner_email:
+        body = _base_template(
+            _h1("Deletion request received") +
+            _p(f"User {email} ({session.get('display_name','')}) has requested deletion of their account.") +
+            _p(f"Firm: {firm.get('firm_name','')} ({session.get('firm_id','')})") +
+            _p(f"To process: remove user from firm JSON file within 30 days (GDPR Art. 12).") +
+            _p(f"User ID: {user_id}")
+        )
+        _send(owner_email, "Mickey Admin", "Mickey — account deletion request", body)
+
+    _log_auth_event("gdpr_deletion_request", email, True)
+
+    # Sign the user out
+    session.clear()
+    return jsonify({
+        "ok": True,
+        "message": "Your deletion request has been received. Your account will be deleted within 30 days in accordance with GDPR Art. 17. You have been signed out."
+    })
+
+
+@auth_bp.route("/api/gdpr/delete-firm", methods=["POST"])
+def gdpr_delete_firm():
+    """Admin only: delete entire firm and all its data."""
+    if not session.get("firm_id") or session.get("role") != "admin":
+        return jsonify({"error": "Not authorised"}), 403
+
+    import datetime as _dt, shutil as _shutil
+    data    = request.get_json(force=True) or {}
+    confirm = data.get("confirm","")
+
+    if confirm != "DELETE MY FIRM":
+        return jsonify({"error": "Please type DELETE MY FIRM to confirm"}), 400
+
+    firm_id = session.get("firm_id")
+    email   = session.get("email","")
+    firm    = load_firm(firm_id)
+    if not firm:
+        return jsonify({"error": "Firm not found"}), 404
+
+    # Mark for deletion (actual deletion done by platform admin within 30 days)
+    firm["deletion_requested_at"] = _dt.datetime.utcnow().isoformat()
+    firm["deletion_requested"]    = True
+    firm["deletion_requested_by"] = email
+    firm["status"]                = "deletion_pending"
+    save_firm(firm)
+
+    # Notify platform owner
+    from auth.email import _send, _base_template, _h1, _p
+    import os
+    owner_email = os.environ.get("MICKEY_OWNER_EMAIL","")
+    if owner_email:
+        body = _base_template(
+            _h1("Firm deletion request") +
+            _p(f"Firm {firm.get('firm_name','')} (ID: {firm_id}) has requested full account deletion.") +
+            _p(f"Requested by: {email}") +
+            _p(f"Action required: delete firm data directory within 30 days.")
+        )
+        _send(owner_email, "Mickey Admin", "Mickey — firm deletion request", body)
+
+    _log_auth_event("gdpr_firm_deletion_request", email, True)
+    session.clear()
+    return jsonify({
+        "ok": True,
+        "message": "Your firm deletion request has been received. All data will be permanently deleted within 30 days."
+    })
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 5 — SESSION BRIDGE & APP ACCESS
+# ════════════════════════════════════════════════════════════════
+
+def firm_login_required(f):
+    """Decorator for routes that need firm auth session."""
+    from functools import wraps
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get("firm_id"):
+            return redirect("/signin")
+        if session.get("firm_status") not in ("trial", "active"):
+            return redirect("/pending")
+        return f(*args, **kwargs)
+    return decorated
+
+
+@auth_bp.route("/api/firm/me")
+def firm_me():
+    """Current user info for new frontend."""
+    if not session.get("firm_id"):
+        return jsonify({"authenticated": False}), 401
+    return jsonify({
+        "authenticated": True,
+        "email":         session.get("email"),
+        "display_name":  session.get("display_name"),
+        "role":          session.get("role"),
+        "firm_id":       session.get("firm_id"),
+        "firm_name":     session.get("firm_name"),
+        "firm_status":   session.get("firm_status"),
+    })
+
+
+@auth_bp.route("/api/firm/logout", methods=["POST"])
+def firm_logout():
+    """Sign out — clears session server-side (principle 1)."""
+    _log_auth_event("logout", session.get("email", ""), True)
+    session.clear()
+    return jsonify({"ok": True, "redirect": "/signin"})
+
+
+@auth_bp.route("/signout")
+def signout():
+    _log_auth_event("logout", session.get("email", ""), True)
+    session.clear()
+    return redirect("/signin")
+
+
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 6 — TEAM MANAGEMENT
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/team")
+def team_page():
+    """Team management page — admin only."""
+    if not session.get("firm_id"):
+        return redirect("/signin")
+    if session.get("role") != "admin":
+        return redirect("/app")
+    firm = load_firm(session["firm_id"])
+    if not firm:
+        return redirect("/signin")
+    users = []
+    for uid, u in firm.get("users", {}).items():
+        users.append({
+            "user_id":      uid,
+            "display_name": u.get("display_name", ""),
+            "email":        u.get("email", ""),
+            "role":         u.get("role", "member"),
+            "status":       u.get("status", "active"),
+            "created_at":   u.get("created_at", ""),
+        })
+    users.sort(key=lambda x: x["created_at"])
+    return render_template("auth/team.html",
+        firm=firm,
+        users=users,
+        current_user_id=session.get("user_id"),
+    )
+
+
+@auth_bp.route("/api/team/invite", methods=["POST"])
+def team_invite():
+    """Admin: invite a new team member."""
+    if not session.get("firm_id") or session.get("role") != "admin":
+        return jsonify({"error": "Not authorised"}), 403
+
+    data  = request.get_json(force=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    role  = data.get("role", "member")
+    name  = (data.get("display_name") or "").strip()
+
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+    if role not in ("admin", "member", "knowledge_curator"):
+        return jsonify({"error": "Invalid role"}), 400
+
+    firm = load_firm(session["firm_id"])
+    if not firm:
+        return jsonify({"error": "Firm not found"}), 404
+
+    # Check email domain matches firm domain
+    email_domain = email.split("@")[-1].lower()
+    if email_domain != firm.get("email_domain", ""):
+        return jsonify({"error": f"Email must be from @{firm['email_domain']}"}), 400
+
+    # Check not already a member
+    for uid, u in firm.get("users", {}).items():
+        if u.get("email", "").lower() == email:
+            return jsonify({"error": "This email is already a team member"}), 400
+
+    # Create invite token
+    token = create_invite_token(
+        firm_id      = firm["firm_id"],
+        email        = email,
+        display_name = name,
+        role         = role,
+        invited_by   = session.get("display_name", "your admin"),
+    )
+
+    # Send invite email
+    ok = send_invite_email(
+        to_email     = email,
+        display_name = name or email,
+        firm_name    = firm["firm_name"],
+        invited_by   = session.get("display_name", "your admin"),
+        token        = token,
+    )
+
+    _log_auth_event("team_invite", email, ok)
+    if ok:
+        return jsonify({"ok": True, "message": f"Invite sent to {email}"})
+    else:
+        return jsonify({"error": "Failed to send invite email — check Brevo config"}), 500
+
+
+@auth_bp.route("/api/team/change-role", methods=["POST"])
+def team_change_role():
+    """Admin: change a team member's role."""
+    if not session.get("firm_id") or session.get("role") != "admin":
+        return jsonify({"error": "Not authorised"}), 403
+
+    data    = request.get_json(force=True) or {}
+    user_id = data.get("user_id", "")
+    role    = data.get("role", "")
+
+    if role not in ("admin", "member", "knowledge_curator"):
+        return jsonify({"error": "Invalid role"}), 400
+
+    # Can't demote yourself
+    if user_id == session.get("user_id") and role != "admin":
+        return jsonify({"error": "You cannot change your own role"}), 400
+
+    firm = load_firm(session["firm_id"])
+    if not firm or user_id not in firm.get("users", {}):
+        return jsonify({"error": "User not found"}), 404
+
+    firm["users"][user_id]["role"] = role
+    save_firm(firm)
+    _log_auth_event("role_change", firm["users"][user_id].get("email", ""), True)
+    return jsonify({"ok": True})
+
+
+@auth_bp.route("/api/team/remove", methods=["POST"])
+def team_remove():
+    """Admin: remove a team member."""
+    if not session.get("firm_id") or session.get("role") != "admin":
+        return jsonify({"error": "Not authorised"}), 403
+
+    data    = request.get_json(force=True) or {}
+    user_id = data.get("user_id", "")
+
+    if user_id == session.get("user_id"):
+        return jsonify({"error": "You cannot remove yourself"}), 400
+
+    firm = load_firm(session["firm_id"])
+    if not firm or user_id not in firm.get("users", {}):
+        return jsonify({"error": "User not found"}), 404
+
+    removed_email = firm["users"][user_id].get("email", "")
+    del firm["users"][user_id]
+    save_firm(firm)
+    _log_auth_event("team_remove", removed_email, True)
+    return jsonify({"ok": True})
+
+
+
+
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 9 — TRIAL MANAGEMENT
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/api/firm/trial-status")
+def firm_trial_status():
+    """Return trial status for current firm — used by frontend banner."""
+    if not session.get("firm_id"):
+        return jsonify({"error": "Not authenticated"}), 401
+    firm = load_firm(session["firm_id"])
+    if not firm:
+        return jsonify({"error": "Firm not found"}), 404
+    from auth.data import get_trial_status
+    trial = get_trial_status(firm)
+    return jsonify({
+        "firm_name":   firm.get("firm_name",""),
+        "status":      trial.get("status",""),
+        "days_left":   trial.get("days_left", 0),
+        "expired":     trial.get("expired", False),
+        "expires_at":  trial.get("expires_at",""),
+        "show_banner": trial.get("status") == "trial" and trial.get("days_left", 99) <= 14,
+    })
+
+
+@auth_bp.route("/api/firm/usage")
+def firm_usage():
+    """Return usage summary for current firm."""
+    if not session.get("firm_id"):
+        return jsonify({"error": "Not authenticated"}), 401
+    firm = load_firm(session["firm_id"])
+    if not firm:
+        return jsonify({"error": "Firm not found"}), 404
+    users = firm.get("users", {})
+    return jsonify({
+        "firm_id":    firm.get("firm_id"),
+        "firm_name":  firm.get("firm_name"),
+        "user_count": len(users),
+        "users": [
+            {
+                "display_name": u.get("display_name",""),
+                "email":        u.get("email",""),
+                "role":         u.get("role","member"),
+                "last_signin":  u.get("last_signin",""),
+            }
+            for uid, u in users.items()
+        ]
+    })
+
+
+
+# ════════════════════════════════════════════════════════════════
+# CHUNK 8 — BACK OFFICE (proper platform admin dashboard)
+# ════════════════════════════════════════════════════════════════
+
+@auth_bp.route("/platform-admin")
+def platform_admin():
+    """Proper back office — replaces temporary platform-approve page."""
+    import hashlib, os
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return "Not found", 404
+
+    firms = list_all_firms()
+    # Enrich with trial status
+    from auth.data import get_trial_status
+    for f in firms:
+        t = get_trial_status(f)
+        f["trial_info"] = t
+        f["user_count"] = len(f.get("users", {}))
+
+    # Sort: pending first, then trial, then active
+    order = {"pending_approval": 0, "trial": 1, "active": 2, "rejected": 3, "suspended": 4}
+    firms.sort(key=lambda x: (order.get(x.get("status",""), 9), x.get("firm_name","")))
+
+    total_firms  = len(firms)
+    trial_firms  = sum(1 for f in firms if f.get("status") == "trial")
+    active_firms = sum(1 for f in firms if f.get("status") == "active")
+    pending_firms= sum(1 for f in firms if f.get("status") == "pending_approval")
+    total_users  = sum(f["user_count"] for f in firms)
+
+    status_badge = {
+        "pending_approval": ("<span style='background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.06em;'>PENDING</span>"),
+        "trial":    ("<span style='background:#D1FAE5;color:#065F46;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.06em;'>TRIAL</span>"),
+        "active":   ("<span style='background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.06em;'>ACTIVE</span>"),
+        "rejected": ("<span style='background:#FEE2E2;color:#991B1B;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.06em;'>REJECTED</span>"),
+        "suspended":("<span style='background:#F3F4F6;color:#6B7280;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.06em;'>SUSPENDED</span>"),
+    }
+
+    rows = ""
+    for f in firms:
+        fid   = f.get("firm_id","")
+        name  = f.get("firm_name","—")
+        domain= f.get("email_domain","—")
+        status= f.get("status","—")
+        uc    = f["user_count"]
+        ti    = f["trial_info"]
+        days  = f"D{ti.get('days_left',0)}" if status == "trial" else "—"
+        badge = status_badge.get(status, status)
+        admin_email = ""
+        for uid, u in f.get("users",{}).items():
+            if u.get("role") == "admin":
+                admin_email = u.get("email","")
+                break
+
+        actions = ""
+        if status == "pending_approval":
+            actions = f'''
+                <button onclick="firmAction('{fid}','approve')" style="background:#1B4F40;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">Approve</button>
+                <button onclick="firmAction('{fid}','reject')" style="background:#fff;color:#C0392B;border:1px solid #E8BCBC;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">Reject</button>
+            '''
+        elif status == "trial":
+            actions = f'''
+                <button onclick="firmAction('{fid}','activate')" style="background:#1B4F40;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">Activate</button>
+                <button onclick="firmExtend('{fid}')" style="background:#fff;color:#1B4F40;border:1px solid #C4DACE;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">+30 days</button>
+            '''
+        elif status == "active":
+            actions = f'''
+                <button onclick="firmAction('{fid}','suspend')" style="background:#fff;color:#706C65;border:1px solid #D8D4CC;padding:5px 12px;border-radius:6px;font-size:11px;cursor:pointer;">Suspend</button>
+            '''
+        elif status in ("rejected","suspended"):
+            actions = f'''
+                <button onclick="firmAction('{fid}','approve')" style="background:#1B4F40;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">Re-approve</button>
+            '''
+
+        rows += f'''
+        <tr style="border-bottom:1px solid #F0EDE8;">
+          <td style="padding:12px 16px;">
+            <div style="font-weight:500;color:#1A1916;font-size:13px;">{name}</div>
+            <div style="font-size:11px;color:#A8A49D;">@{domain} · {admin_email}</div>
+          </td>
+          <td style="padding:12px 16px;text-align:center;">{badge}</td>
+          <td style="padding:12px 16px;text-align:center;font-size:13px;color:#706C65;">{uc}</td>
+          <td style="padding:12px 16px;text-align:center;font-size:12px;color:#706C65;">{days}</td>
+          <td style="padding:12px 16px;">{actions}</td>
+        </tr>
+        '''
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mickey — Platform Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{{margin:0;padding:0;box-sizing:border-box;}}
+  body{{font-family:'Inter',sans-serif;background:#F5F3EE;color:#1A1916;font-size:13px;}}
+  .topbar{{background:#1B4F40;padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;}}
+  .topbar-logo{{font-family:'Lora',serif;color:#fff;font-size:18px;}}
+  .topbar-sub{{font-size:11px;color:rgba(255,255,255,.5);margin-left:12px;}}
+  .topbar-links a{{color:rgba(255,255,255,.6);font-size:12px;text-decoration:none;margin-left:20px;}}
+  .topbar-links a:hover{{color:#fff;}}
+  .main{{max-width:1100px;margin:0 auto;padding:32px 24px;}}
+  .stats{{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}}
+  .stat{{background:#fff;border:1px solid #EAE6DF;border-radius:10px;padding:16px 20px;}}
+  .stat-val{{font-family:'Lora',serif;font-size:28px;color:#1B4F40;}}
+  .stat-label{{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A8A49D;margin-top:2px;}}
+  .card{{background:#fff;border:1px solid #EAE6DF;border-radius:12px;overflow:hidden;}}
+  .card-header{{padding:16px 20px;border-bottom:1px solid #F0EDE8;display:flex;align-items:center;justify-content:space-between;}}
+  .card-title{{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#A8A49D;}}
+  table{{width:100%;border-collapse:collapse;}}
+  th{{padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#A8A49D;background:#FAFAF8;border-bottom:1px solid #F0EDE8;}}
+  th:nth-child(2),th:nth-child(3),th:nth-child(4){{text-align:center;}}
+  #alert{{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:500;display:none;z-index:100;}}
+  .alert-ok{{background:#D1FAE5;border:1px solid #6EE7B7;color:#065F46;}}
+  .alert-err{{background:#FEE2E2;border:1px solid #FCA5A5;color:#991B1B;}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;">
+    <div class="topbar-logo">Mickey</div>
+    <span class="topbar-sub">Platform Admin</span>
+  </div>
+  <div class="topbar-links">
+    <a href="/platform-setup?key={url_key}">Setup</a>
+    <a href="/platform-admin?key={url_key}">↺ Refresh</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="stats">
+    <div class="stat"><div class="stat-val">{total_firms}</div><div class="stat-label">Total firms</div></div>
+    <div class="stat"><div class="stat-val">{pending_firms}</div><div class="stat-label">Pending</div></div>
+    <div class="stat"><div class="stat-val">{trial_firms}</div><div class="stat-label">On trial</div></div>
+    <div class="stat"><div class="stat-val">{active_firms}</div><div class="stat-label">Active</div></div>
+    <div class="stat"><div class="stat-val">{total_users}</div><div class="stat-label">Total users</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Firms</span>
+      <span style="font-size:12px;color:#A8A49D;">{total_firms} registered</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Firm</th>
+          <th>Status</th>
+          <th>Users</th>
+          <th>Trial</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  </div>
+</div>
+
+<div id="alert"></div>
+
+<script>
+const KEY = "{url_key}";
+
+function showAlert(msg, ok=true) {{
+  const el = document.getElementById("alert");
+  el.textContent = msg;
+  el.className = ok ? "alert-ok" : "alert-err";
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 3000);
+}}
+
+async function firmAction(firmId, action) {{
+  if (!confirm(`${{action}} this firm?`)) return;
+  const r = await fetch(`/api/platform/firm-action?key=${{KEY}}`, {{
+    method: "POST",
+    headers: {{"Content-Type":"application/json"}},
+    body: JSON.stringify({{firm_id: firmId, action}})
+  }});
+  const d = await r.json();
+  if (d.ok) {{ showAlert(d.message || "Done"); setTimeout(() => location.reload(), 1000); }}
+  else showAlert(d.error || "Failed", false);
+}}
+
+async function firmExtend(firmId) {{
+  const r = await fetch(`/api/platform/firm-extend?key=${{KEY}}`, {{
+    method: "POST",
+    headers: {{"Content-Type":"application/json"}},
+    body: JSON.stringify({{firm_id: firmId, days: 30}})
+  }});
+  const d = await r.json();
+  if (d.ok) {{ showAlert("Trial extended by 30 days"); setTimeout(() => location.reload(), 1000); }}
+  else showAlert(d.error || "Failed", false);
+}}
+</script>
+</body>
+</html>"""
+
+
+@auth_bp.route("/api/platform/firm-action")
+def platform_firm_action():
+    """Back office: approve/reject/activate/suspend a firm."""
+    import hashlib
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return jsonify({"error": "Not authorised"}), 403
+
+    data   = request.get_json(force=True) or {}
+    firm_id= data.get("firm_id","")
+    action = data.get("action","")
+
+    firm = load_firm(firm_id)
+    if not firm:
+        return jsonify({"error": "Firm not found"}), 404
+
+    status_map = {
+        "approve":  "trial",
+        "activate": "active",
+        "reject":   "rejected",
+        "suspend":  "suspended",
+    }
+    if action not in status_map:
+        return jsonify({"error": "Invalid action"}), 400
+
+    new_status = status_map[action]
+    firm["status"] = new_status
+    if action == "approve":
+        import datetime as _dt
+        firm["approved_at"] = _dt.datetime.utcnow().isoformat()
+        firm.setdefault("trial_days", 30)
+    save_firm(firm)
+
+    # Send approval email if approving
+    if action == "approve":
+        admin_email = ""
+        admin_name  = ""
+        for uid, u in firm.get("users", {}).items():
+            if u.get("role") == "admin":
+                admin_email = u.get("email","")
+                admin_name  = u.get("display_name","")
+                break
+        if admin_email:
+            send_approval_email(admin_email, admin_name, firm["firm_name"])
+
+    return jsonify({"ok": True, "message": f"Firm {action}d successfully"})
+
+
+@auth_bp.route("/api/platform/firm-extend")
+def platform_firm_extend():
+    """Back office: extend a firm's trial."""
+    import hashlib
+    url_key   = request.args.get("key", "")
+    valid_key = hashlib.sha256(b"MICKEYSETUP2026").hexdigest()
+    if not url_key or hashlib.sha256(url_key.encode()).hexdigest() != valid_key:
+        return jsonify({"error": "Not authorised"}), 403
+
+    data    = request.get_json(force=True) or {}
+    firm_id = data.get("firm_id","")
+    days    = int(data.get("days", 30))
+
+    from auth.data import extend_trial
+    ok = extend_trial(firm_id, days)
+    if ok:
+        return jsonify({"ok": True})
+    return jsonify({"error": "Firm not found"}), 404
 
 
 
