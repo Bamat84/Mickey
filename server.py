@@ -51,6 +51,12 @@ try:
     print("  Auth module: loaded")
 except Exception as e:
     print(f"  Auth module: not found ({e}) — running without firm auth")
+try:
+    from compliance.routes import compliance_bp
+    app.register_blueprint(compliance_bp)
+    print("  Compliance module: loaded")
+except Exception as e:
+    print(f"  Compliance module: not found ({e}) — running without compliance")
 # Secret key MUST come from environment in production
 # Set: $env:MICKEY_SECRET = "your-long-random-string"  (PowerShell)
 # Or:  set MICKEY_SECRET=your-long-random-string         (cmd)

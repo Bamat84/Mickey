@@ -134,7 +134,8 @@ def _firm_session(firm, user) -> None:
     session["firm_status"]  = firm["status"]
     session["username"]     = user["email"]   # bridge: old Mickey app uses session["username"]
     session.permanent       = True
-
+    session["compliance_role"] = user.get("compliance_role", "viewer")
+    session["modules"]         = user.get("modules", ["documents", "corporate", "radar", "knowledge"])
 
 def _role_label(role: str) -> str:
     return {
@@ -299,6 +300,11 @@ def do_register():
         firm, email, display_name, hashed,
         role="admin", email_verified=False
     )
+# Set compliance defaults for first (admin) user
+    from auth.data import update_user_field
+    update_user_field(firm, user["user_id"], compliance_role="admin")
+    update_user_field(firm, user["user_id"], \
+        modules=["compliance","whistleblowing","documents","corporate","radar","knowledge"])
 
     # Record T&C acceptance
     ip = _client_ip()
