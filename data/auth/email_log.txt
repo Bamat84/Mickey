@@ -1,0 +1,549 @@
+
+────────────────────────────────────────────────────────────
+[2026-02-20T22:20:48.989769]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: Please verify your email — Mickey
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Please verify your email</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Thank you for registering <strong>FootPrints BV</strong> on Mickey. Please verify your email address to continue.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/verify-email/4fb7dc5d901c3f11020d217d2110ebac4320a0aeb79c68eb8f9ccf1470ccd408" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Verify my email address
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/verify-email/4fb7dc5d901c3f11020d217d2110ebac4320a0aeb79c68eb8f9ccf1470ccd408</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">This link expires in 24 hours. If you didn't create this account, you can safely ignore this email.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T22:55:36.687573]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: Please verify your email — Mickey
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Please verify your email</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Thank you for registering <strong>FootPrints BV</strong> on Mickey. Please verify your email address to continue.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/verify-email/dacb62d64caa745c14153992471c2502eea3deb1b6fbf562bc595277904707e1" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Verify my email address
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/verify-email/dacb62d64caa745c14153992471c2502eea3deb1b6fbf562bc595277904707e1</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">This link expires in 24 hours. If you didn't create this account, you can safely ignore this email.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:23:00.886166]
+SEND FAILED: HTTP Error 401: Unauthorized
+TO:      mathias.baert@lex-it.be
+SUBJECT: Mickey — email test
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Email is working</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">This is a test from your Mickey platform. Brevo is configured correctly.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:23:15.853718]
+SEND FAILED: HTTP Error 401: Unauthorized
+TO:      mathias.baert@unifiedpost.com
+SUBJECT: Mickey — email test
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Email is working</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">This is a test from your Mickey platform. Brevo is configured correctly.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:26:19.180970]
+SEND FAILED: HTTP Error 401: Unauthorized
+TO:      mathias.baert@lex-it.be
+SUBJECT: Mickey — email test
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Email is working</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">This is a test from your Mickey platform. Brevo is configured correctly.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:36:16.711980]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: FootPrints BV — your Mickey account is approved
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Your account has been approved</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Great news — <strong>FootPrints BV</strong>'s Mickey account has been approved and is ready to use.</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">You can now sign in and start inviting your team.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/signin" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Sign in to Mickey
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/signin</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">If you have any questions, reply to this email or contact us at <a href='mailto:hello@askmickey.io' style='color:#1B4F40;'>hello@askmickey.io</a>.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:39:18.472848]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: Reset your Mickey password
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Reset your password</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">We received a request to reset your Mickey password. Click the button below to choose a new one.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/reset-password/31b0e58b6d7273ff70907feebb125e3e46ca69230b546503474ee48128330a30" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Reset my password
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/reset-password/31b0e58b6d7273ff70907feebb125e3e46ca69230b546503474ee48128330a30</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;"><strong>This link expires in 1 hour</strong> and can only be used once. If you did not request a password reset, you can safely ignore this email — your password has not been changed.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-20T23:49:13.325749]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: Reset your Mickey password
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Reset your password</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">We received a request to reset your Mickey password. Click the button below to choose a new one.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/reset-password/ab021951ee4d3ad1f9aa78d5b5d4e9b0290a878af7df1aae11a7a08774405507" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Reset my password
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/reset-password/ab021951ee4d3ad1f9aa78d5b5d4e9b0290a878af7df1aae11a7a08774405507</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;"><strong>This link expires in 1 hour</strong> and can only be used once. If you did not request a password reset, you can safely ignore this email — your password has not been changed.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+────────────────────────────────────────────────────────────
+[2026-02-21T00:00:50.275351]
+(BREVO_API_KEY not set — logged only)
+TO:      mathias.baert@lex-it.be
+SUBJECT: Reset your Mickey password
+BODY:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mickey Legal</title>
+</head>
+<body style="margin:0;padding:0;background:#F5F3EE;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F5F3EE;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #E8E4DC;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#1B4F40;padding:28px 40px;">
+              <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:#F5F3EE;letter-spacing:-0.3px;">
+                Mickey
+              </p>
+              <p style="margin:4px 0 0;font-size:11px;color:#A8C4BD;letter-spacing:0.5px;text-transform:uppercase;">
+                Legal Intelligence
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:36px 40px 32px;">
+              <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:24px;font-weight:700;color:#1B4F40;">Reset your password</h1><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">Hi Mathias Baert,</p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;">We received a request to reset your Mickey password. Click the button below to choose a new one.</p><p style="margin:28px 0 0;">
+      <a href="https://askmickey.io/reset-password/5cbab0186718e826ef77f91524e41f8a3df41dee3fc51c0fade365e5930c02f3" style="display:inline-block;background:#1B4F40;color:#F5F3EE;
+         text-decoration:none;padding:12px 28px;border-radius:6px;
+         font-size:14px;font-weight:600;font-family:'Helvetica Neue',Arial,sans-serif;">
+        Reset my password
+      </a>
+    </p>
+    <p style="margin:12px 0 0;font-size:12px;color:#9A9690;">
+      Or copy this link: <span style="color:#1B4F40;word-break:break-all;">https://askmickey.io/reset-password/5cbab0186718e826ef77f91524e41f8a3df41dee3fc51c0fade365e5930c02f3</span>
+    </p><p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2C2C2C;"><strong>This link expires in 1 hour</strong> and can only be used once. If you did not request a password reset, you can safely ignore this email — your password has not been changed.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px 28px;border-top:1px solid #E8E4DC;">
+              <p style="margin:0;font-size:11px;color:#9A9690;line-height:1.6;">
+                Mickey Legal &mdash; <a href="https://askmickey.io" style="color:#1B4F40;text-decoration:none;">https://askmickey.io</a><br>
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

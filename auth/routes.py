@@ -485,8 +485,13 @@ def accept_invite():
 
 @auth_bp.route("/auth/signout", methods=["POST"])
 def signout():
+
     session.clear()
     return jsonify({"ok": True, "redirect": "/signin"})
+@auth_bp.route("/auth/signout-get", methods=["GET"])
+def signout_get():
+    session.clear()
+    return redirect("/signin")
 
 
 @auth_bp.route("/terms")

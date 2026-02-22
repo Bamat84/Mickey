@@ -1,0 +1,35 @@
+{
+  "firm_id": "f_9d6f11ba",
+  "firm_name": "Lex-IT",
+  "email_domain": "lex-it.be",
+  "status": "active",
+  "created_at": "2026-02-21T22:11:39.134738",
+  "approved_at": "2026-02-21T22:11:39.134738",
+  "trial_days": 30,
+  "users": {
+    "u_26b69e2c": {
+      "user_id": "u_26b69e2c",
+      "email": "mathias.baert@lex-it.be",
+      "display_name": "Mathias Baert",
+      "hashed": "$2b$12$g/WgeYLsGuLWeHX7PsookeXBZI1xtsR/vwwu/ZFfiTFi53Jh2BLTe",
+      "role": "admin",
+      "status": "active",
+      "email_verified": true,
+      "tc_version_accepted": "1.0",
+      "tc_accepted_at": "2026-02-21T22:11:39.134738",
+      "created_at": "2026-02-20T16:10:19.105335",
+      "last_signin": "2026-02-21T22:11:39.134738",
+      "last_login": "2026-02-22T18:22:12.146565",
+      "compliance_role": "admin",
+      "modules": [
+        "compliance",
+        "whistleblowing",
+        "documents",
+        "corporate",
+        "radar",
+        "knowledge"
+      ]
+    }
+  },
+  "updated_at": "2026-02-22T18:22:12.146571"
+}

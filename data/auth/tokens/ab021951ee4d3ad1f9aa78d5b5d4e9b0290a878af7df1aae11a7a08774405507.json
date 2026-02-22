@@ -1,0 +1,12 @@
+{
+  "token": "ab021951ee4d3ad1f9aa78d5b5d4e9b0290a878af7df1aae11a7a08774405507",
+  "type": "password_reset",
+  "email": "mathias.baert@lex-it.be",
+  "firm_id": "f_9a4085665c64b730",
+  "user_id": "user_c30dc400679849e0",
+  "role": null,
+  "created_at": "2026-02-20T23:49:13.325180",
+  "expires_at": "2026-02-21T00:49:13.325180",
+  "used": true,
+  "invalidated": true
+}

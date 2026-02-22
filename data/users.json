@@ -1,0 +1,10 @@
+{
+  "bamat": {
+    "display_name": "Mathias Baert",
+    "hashed": "$2b$12$4nqNe/ed6V9DfDB6pNcWyO5kZehAJtf.NLZb.mTslP/3YqMDEWtFa",
+    "hash_v": "bcrypt",
+    "salt": "",
+    "role": "admin",
+    "created": "2026-02-20T16:10:19.105335"
+  }
+}

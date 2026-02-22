@@ -78,23 +78,7 @@ def err(msg, code=400):
 @compliance_bp.route("/compliance")
 @login_required
 def index():
-    firm_id = get_firm()
-    modules = session.get("modules", [])
-    if "compliance" not in modules:
-        return redirect(url_for("app_home"))
-    settings = cd.get_compliance_settings(firm_id)
-    dashboard = cd.get_dashboard(firm_id)
-    role = session.get("compliance_role", "viewer")
-    return render_template(
-        "compliance/index.html",
-        firm_id=firm_id,
-        role=role,
-        modules=modules,
-        settings=settings,
-        dashboard=dashboard,
-        dpia_stages=cd.DPIA_STAGES,
-        supervisory_authorities=cd.SUPERVISORY_AUTHORITIES,
-    )
+    return redirect("/app")
 
 # ── Compliance settings ───────────────────────────────────────────────────────
 

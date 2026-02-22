@@ -1,0 +1,19 @@
+{
+  "firm_id": "f_9a4085665c64b730",
+  "firm_name": "FootPrints BV",
+  "email_domain": "lex-it.be",
+  "billing_email": "mathias.baert@lex-it.be",
+  "vat": "BE0734400559",
+  "country": "BE",
+  "status": "trial",
+  "seats": 10,
+  "created_at": "2026-02-20T23:30:48.010288",
+  "approved_at": "2026-02-20T23:36:16.710876",
+  "approved_by": null,
+  "rejected_at": null,
+  "rejected_by": null,
+  "tc_version": "1.0",
+  "trial_ends_at": "2026-03-22T23:30:48.010316",
+  "users": {},
+  "updated_at": "2026-02-21T22:29:47.264820"
+}
