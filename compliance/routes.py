@@ -78,7 +78,7 @@ def err(msg, code=400):
 @compliance_bp.route("/compliance")
 @login_required
 def index():
-    return render_template("compliance/index.html")
+    return redirect("/app")
 
 # ── Compliance settings ───────────────────────────────────────────────────────
 
