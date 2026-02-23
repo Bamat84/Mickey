@@ -554,6 +554,11 @@ def list_all_firms() -> list:
     for p in FIRMS_DIR.glob("f_*.json"):
         rec = _read_json(p)
         if rec:
+            users = rec.get("users", {})
+            admin_email = next(
+                (u.get("email", "") for u in users.values() if u.get("role") == "admin"),
+                ""
+            )
             firms.append({
                 "firm_id":     rec.get("firm_id", ""),
                 "firm_name":   rec.get("firm_name", ""),
@@ -561,8 +566,9 @@ def list_all_firms() -> list:
                 "status":      rec.get("status", ""),
                 "created_at":  rec.get("created_at", ""),
                 "approved_at": rec.get("approved_at", ""),
-                "user_count":  len(rec.get("users", {})),
+                "user_count":  len(users),
                 "country":     rec.get("country", ""),
+                "admin_email": admin_email,
             })
     return sorted(firms, key=lambda x: x.get("created_at", ""), reverse=True)
 

@@ -992,35 +992,29 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
 </style>
 </head>
 <body>
-<!-- AUTH -->
-<div id="auth-screen" style="display:none">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="auth-logomark">M</div>
-      <div class="auth-logo-text">Mickey</div>
-      <div class="auth-logo-sub">Legal Intelligence</div>
-    </div>
-    <div id="login-panel">
-      <div class="auth-mode-label">Sign in</div>
-      <div class="auth-field"><label>Username</label><input type="text" id="login-user" placeholder="your.name"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="login-pw" placeholder="••••••••"></div>
-      <button class="auth-btn" onclick="doLogin()">Sign in</button>
-      <div class="auth-error" id="login-error"></div>
-      <div class="auth-switch">No account? <a onclick="showRegister()">Register</a></div>
-    </div>
-    <div id="register-panel" style="display:none">
-      <div class="auth-mode-label">Create account</div>
-      <div class="auth-field"><label>Full name</label><input type="text" id="reg-name" placeholder="Mathias Luyckx"></div>
-      <div class="auth-field"><label>Username</label><input type="text" id="reg-user" placeholder="mathias"></div>
-      <div class="auth-field"><label>Password</label><input type="password" id="reg-pw" placeholder="Min 8 chars"></div>
-      <div class="auth-field"><label>Confirm</label><input type="password" id="reg-pw2" placeholder="Repeat"></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;">Min 8 chars · 1 uppercase · 1 number · 1 special character</div>
-      <button class="auth-btn" onclick="doRegister()">Create account</button>
-      <div class="auth-error" id="reg-error"></div>
-      <div class="auth-switch">Already registered? <a onclick="showLogin()">Sign in</a></div>
-    </div>
-  </div>
+<!-- TRIAL BANNER -->
+<div id="trial-banner" style="display:none;background:#FEF3C7;border-bottom:1px solid #FCD34D;padding:10px 24px;align-items:center;justify-content:space-between;font-size:12px;color:#92400E;">
+  <span id="trial-banner-text"></span>
+  <a href="mailto:hello@askmickey.io?subject=Mickey subscription" style="background:#92400E;color:#fff;padding:5px 14px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:600;margin-left:16px;white-space:nowrap;">Upgrade now</a>
 </div>
+<script>
+(async function() {
+  try {
+    const r = await fetch('/api/firm/trial-status');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.show_banner) {
+      const banner = document.getElementById('trial-banner');
+      const text   = document.getElementById('trial-banner-text');
+      text.textContent = d.days_left === 0
+        ? 'Your trial expires today. Contact us to continue using Mickey.'
+        : `Your trial ends in ${d.days_left} day${d.days_left === 1 ? '' : 's'}. Contact us to continue.`;
+      banner.style.display = 'flex';
+    }
+  } catch(e) {}
+})();
+</script>
+
 
 <!-- APP -->
 <div id="app">
@@ -1055,7 +1049,10 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg><span>Documents</span>
     </div>
     <div class="nav-item" data-mod="vault" onclick="go('vault',this)">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Corporate</span>
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg><span>Corporate</span>
+    </div>
+    <div class="nav-item" data-mod="minutes" onclick="go('minutes',this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="11" y2="17"/></svg><span>Board &amp; Minutes</span>
     </div>
     <div class="nav-item" data-mod="playbooks" onclick="go('playbooks',this)">
       <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Playbooks</span>
@@ -1117,8 +1114,8 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
           <p id="dash-date-text">Loading...</p>
         </div>
         <div class="stats-row">
-          <div class="stat-card c-green"><div class="stat-label">Active Matters</div><div class="stat-num">7</div><div class="stat-sub">2 need attention</div></div>
-          <div class="stat-card c-amber"><div class="stat-label">Radar Alerts</div><div class="stat-num">3</div><div class="stat-sub">New updates</div></div>
+          <div class="stat-card c-green"><div class="stat-label">Active Matters</div><div class="stat-num" id="dash-matters-count">—</div><div class="stat-sub" id="dash-matters-sub">Loading…</div></div>
+          <div class="stat-card c-amber"><div class="stat-label">Radar Alerts</div><div class="stat-num" id="dash-radar-count">—</div><div class="stat-sub" id="dash-radar-sub">Loading…</div></div>
           <div class="stat-card c-blue"><div class="stat-label">Queries this month</div><div class="stat-num" id="dash-query-count">—</div><div class="stat-sub">AI-assisted research</div></div>
           <div class="stat-card c-purple"><div class="stat-label">Documents reviewed</div><div class="stat-num" id="dash-docs-count">—</div><div class="stat-sub">This month</div></div>
         </div>
@@ -2364,43 +2361,28 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
           <div class="meetings-list">
             <div class="ml-head">Meetings <button class="ml-add" onclick="newMeetingDialog()">+</button></div>
             <div id="meetings-list-body">
-              <div class="meeting-item active" onclick="selectMeeting(this,0)"><div class="m-date">12 Feb 2026</div><div class="m-title">Board of Directors</div><div class="m-sub"><span class="m-open-dot"></span>Brussels · 4 open actions</div></div>
-              <div class="meeting-item" onclick="selectMeeting(this,1)"><div class="m-date">28 Jan 2026</div><div class="m-title">Audit Committee</div><div class="m-sub">Remote · 2 actions</div></div>
-              <div class="meeting-item" onclick="selectMeeting(this,2)"><div class="m-date">15 Jan 2026</div><div class="m-title">Executive Committee</div><div class="m-sub">Brussels · 6 actions</div></div>
-              <div class="meeting-item" onclick="selectMeeting(this,3)"><div class="m-date">18 Dec 2025</div><div class="m-title">Board of Directors</div><div class="m-sub">Brussels · all closed</div></div>
-              <div class="meeting-item" onclick="selectMeeting(this,4)"><div class="m-date">4 Dec 2025</div><div class="m-title">Remuneration Committee</div><div class="m-sub">Remote · 1 action</div></div>
+              <div id="meetings-empty" style="padding:16px 12px;font-size:12px;color:var(--text-muted);">No meetings yet. Click + to create your first meeting.</div>
             </div>
           </div>
           <div class="minutes-detail" id="minutes-detail">
-            <div class="md-top"><h3>Board of Directors — 12 February 2026</h3><p>Brussels · Verbrugge (Chair), Claes, Hoffman, Desmet, Leclercq, Mathias V. (Secretary)</p></div>
-            <div class="md-tabs-row">
-              <button class="md-tab active" onclick="switchMinTab(this,'summary')">Summary</button>
-              <button class="md-tab" onclick="switchMinTab(this,'actions')">Action items</button>
-              <button class="md-tab" onclick="switchMinTab(this,'decisions')">Decisions</button>
-              <button class="md-tab" onclick="switchMinTab(this,'full')">Full minutes</button>
-            </div>
-            <div class="md-body">
-              <div id="mintab-summary">
-                <div class="ai-banner"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>AI-generated summary · Verify against signed minutes before circulation</div>
-                <div class="actions-label">Key discussion points</div>
-                <p style="font-size:12.5px;color:var(--text-mid);line-height:1.7;margin-bottom:12px;">The Board reviewed the status of the ongoing sale process and discussed the conflict of interest procedure applicable to Mickey Founder in his capacity as founder and major shareholder. The Board confirmed that access to process-related information should be subject to the procedure under article 7:96 WVV and delegated authority to the Chairman to implement appropriate information barriers in coordination with the investment bank. The Audit Committee presented Q4 2025 results. The Board approved the draft 2026 budget subject to minor amendments to the capex line.</p>
+            <div id="minutes-detail-empty" style="display:flex;align-items:center;justify-content:center;height:220px;color:var(--text-muted);font-size:13px;">Select a meeting or create your first one.</div>
+            <div id="minutes-detail-content" style="display:none">
+              <div class="md-top"><h3 id="minutes-detail-title"></h3><p id="minutes-detail-sub"></p></div>
+              <div class="md-tabs-row">
+                <button class="md-tab active" onclick="switchMinTab(this,'summary')">Summary</button>
+                <button class="md-tab" onclick="switchMinTab(this,'actions')">Action items</button>
+                <button class="md-tab" onclick="switchMinTab(this,'decisions')">Decisions</button>
+                <button class="md-tab" onclick="switchMinTab(this,'full')">Full minutes</button>
               </div>
-              <div id="mintab-actions" style="display:none">
-                <div class="actions-label">Action items</div>
-                <div class="action-row"><div class="action-check done"></div><div class="action-body"><div class="action-title">Draft conflict of interest protocol — Art. 7:96 WVV</div><div class="action-sub">Circulate to Chairman before 20 Feb 2026</div></div><div class="action-owner">Mathias V.</div></div>
-                <div class="action-row"><div class="action-check"></div><div class="action-body"><div class="action-title">Information barrier memo — Mickey Founder</div><div class="action-sub">Define scope, coordinate with the investment bank on process documents</div></div><div class="action-owner">Mathias V.</div></div>
-                <div class="action-row"><div class="action-check"></div><div class="action-body"><div class="action-title">2026 budget — written resolution for signature</div><div class="action-sub">Circulate to all directors within 5 business days</div></div><div class="action-owner">Mathias V.</div></div>
-                <div class="action-row"><div class="action-check"></div><div class="action-body"><div class="action-title">Q4 annual accounts — coordinate with EY</div><div class="action-sub">Signature deadline 31 March 2026</div></div><div class="action-owner">CFO + Mathias V.</div></div>
-              </div>
-              <div id="mintab-decisions" style="display:none">
-                <div class="actions-label">Decisions taken</div>
-                <div class="action-row"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:5px;flex-shrink:0;"></div><div class="action-body"><div class="action-title">Conflict of interest procedure — Mickey Founder</div><div class="action-sub">Board confirmed Art. 7:96 WVV applies. Chairman delegated authority to implement information barriers.</div></div></div>
-                <div class="action-row"><div style="width:6px;height:6px;border-radius:50%;background:var(--green);margin-top:5px;flex-shrink:0;"></div><div class="action-body"><div class="action-title">2026 budget — approved in principle</div><div class="action-sub">Subject to minor capex amendments. Written resolution to follow.</div></div></div>
-              </div>
-              <div id="mintab-full" style="display:none">
-                <div class="actions-label">Full minutes</div>
-                <div style="font-family:var(--font-serif);font-size:14px;line-height:1.8;color:var(--text-mid);font-style:italic;">Upload signed minutes PDF to attach to this record.</div>
-                <div style="margin-top:12px;"><input type="file" id="minutes-pdf-upload" accept=".pdf" style="display:none"><button class="btn btn-sm" onclick="document.getElementById('minutes-pdf-upload').click()">&#128206; Attach signed minutes</button></div>
+              <div class="md-body">
+                <div id="mintab-summary"></div>
+                <div id="mintab-actions" style="display:none"></div>
+                <div id="mintab-decisions" style="display:none"></div>
+                <div id="mintab-full" style="display:none">
+                  <div class="actions-label">Full minutes</div>
+                  <div style="font-family:var(--font-serif);font-size:14px;line-height:1.8;color:var(--text-mid);font-style:italic;">Upload signed minutes PDF to attach to this record.</div>
+                  <div style="margin-top:12px;"><input type="file" id="minutes-pdf-upload" accept=".pdf" style="display:none"><button class="btn btn-sm" onclick="document.getElementById('minutes-pdf-upload').click()">&#128206; Attach signed minutes</button></div>
+                </div>
               </div>
             </div>
           </div>
@@ -2614,7 +2596,7 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
       <div class="role-toggle"><button class="role-btn active" onclick="setRopaRole(this,'controller')">Controller (Art. 30(1))</button><button class="role-btn" onclick="setRopaRole(this,'processor')">Processor (Art. 30(2))</button><button class="role-btn" onclick="setRopaRole(this,'joint')">Joint controller</button></div>
       <input type="hidden" id="ropa-role" value="controller">
     </div>
-    <div class="form-row"><div class="form-group"><label>Activity name *</label><input class="form-control" id="ropa-activity" placeholder="e.g. HR — Employee records"></div></div>
+    <div class="form-row"><div class="form-group"><label>Activity name *</label><input class="form-control" id="ropa-name" placeholder="e.g. HR — Employee records"></div></div>
     <!-- Controller fields -->
     <div id="ropa-controller-fields">
       <div class="form-row">
@@ -3563,7 +3545,6 @@ async function init(){
 
 function showApp(name,admin){
   displayName=name;isAdmin=admin;
-  document.getElementById('auth-screen').style.display='none';
   document.getElementById('app').classList.add('visible');
   document.getElementById('sidebar-user').textContent=name;
   document.getElementById('hero-name').textContent=name+'?';
@@ -3575,13 +3556,24 @@ function showApp(name,admin){
     document.getElementById('settings-tab-admin').style.display='';
     if(document.getElementById('nav-admin-library'))document.getElementById('nav-admin-library').style.display='block';
   }
-  loadStats();loadWorkspace();loadLibrary();
+  loadStats();loadWorkspace();loadLibrary();loadDashStats();
   if(localStorage.getItem('mickey-sidebar')==='1'){
     document.querySelector('.sidebar')?.classList.add('collapsed');
     const icon=document.getElementById('toggle-icon');
     if(icon)icon.innerHTML='<path d="M9 18l6-6-6-6"/>';
   }
   document.getElementById('radar-badge').style.display='flex';
+}
+
+function loadDashStats(){
+  const matters=document.querySelectorAll('#mod-dashboard .matter-item').length;
+  const urgent=document.querySelectorAll('#mod-dashboard .matter-dot.dot-urgent').length;
+  const radar=document.querySelectorAll('#mod-dashboard .radar-card-s').length;
+  const radarReq=document.querySelectorAll('#mod-dashboard .rc-tag-req').length;
+  if(document.getElementById('dash-matters-count'))document.getElementById('dash-matters-count').textContent=matters||'—';
+  if(document.getElementById('dash-matters-sub'))document.getElementById('dash-matters-sub').textContent=urgent>0?`${urgent} need attention`:'Up to date';
+  if(document.getElementById('dash-radar-count'))document.getElementById('dash-radar-count').textContent=radar||'—';
+  if(document.getElementById('dash-radar-sub'))document.getElementById('dash-radar-sub').textContent=radarReq>0?`${radarReq} action required`:'No urgent alerts';
 }
 
 function showRegister(){document.getElementById('login-panel').style.display='none';document.getElementById('register-panel').style.display='block';}
@@ -3620,7 +3612,7 @@ function go(id,el){
   else{
     // find by data-mod; for grouped modules find the parent nav item
     const navMap={'compare':'review','draft':'review','translate':'review',
-                  'minutes':'vault','duediligence':'vault'};
+                  'duediligence':'vault'};
     const navId=navMap[id]||id;
     const navEl=document.querySelector('[data-mod="'+navId+'"]');
     if(navEl)navEl.classList.add('active');
@@ -5150,6 +5142,8 @@ async function createMeeting(){
   const newItem=document.createElement('div');newItem.className='meeting-item';
   newItem.innerHTML=`<div class="m-date">${dateStr}</div><div class="m-title">${esc(type)}</div><div class="m-sub">${esc(location)||'—'} · 0 actions</div>`;
   newItem.onclick=()=>{document.querySelectorAll('.meeting-item').forEach(i=>i.classList.remove('active'));newItem.classList.add('active');updateMinuteDetail(type,dateStr,location,attendees);};
+  const emptyRow=document.getElementById('meetings-empty');
+  if(emptyRow)emptyRow.remove();
   listBody.insertBefore(newItem,listBody.firstChild);
   document.getElementById('new-meeting-form').style.display='none';
   document.getElementById('nm-transcript').value='';
@@ -5165,12 +5159,15 @@ async function createMeeting(){
 }
 
 function updateMinuteDetail(type,dateStr,location,attendees){
-  const detail=document.getElementById('minutes-detail');
-  detail.querySelector('.md-top h3').textContent=`${type} — ${dateStr}`;
-  detail.querySelector('.md-top p').textContent=`${location||'—'} · ${attendees||'—'}`;
+  document.getElementById('minutes-detail-empty').style.display='none';
+  document.getElementById('minutes-detail-content').style.display='';
+  document.getElementById('minutes-detail-title').textContent=`${type} — ${dateStr}`;
+  document.getElementById('minutes-detail-sub').textContent=`${location||'—'} · ${attendees||'—'}`;
   document.getElementById('mintab-summary').innerHTML='<div class="ai-banner"><svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:var(--amber);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>No transcript yet. Paste notes in the new meeting form to generate a summary.</div>';
   document.getElementById('mintab-actions').innerHTML='<div class="actions-label">No action items yet.</div>';
-  switchMinTab(detail.querySelector('.md-tab'),'summary');
+  document.getElementById('mintab-decisions').innerHTML='<div class="actions-label">No decisions yet.</div>';
+  const firstTab=document.querySelector('#mod-minutes .md-tab');
+  if(firstTab)switchMinTab(firstTab,'summary');
 }
 
 function switchMinTab(btn,tab){

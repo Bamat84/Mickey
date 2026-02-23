@@ -283,7 +283,7 @@ def send_new_firm_notification(
     if not OWNER_EMAIL:
         return False   # owner email not configured — skip silently
 
-    backoffice_url = f"{PLATFORM_URL}/backoffice"
+    backoffice_url = f"{PLATFORM_URL}/platform-admin"
 
     content = (
         _h1("New firm registration") +

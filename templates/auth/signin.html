@@ -107,9 +107,10 @@ async function doSignin() {
     const d = await r.json();
     if (d.ok) {
       window.location.href = d.redirect || '/app';
+    } else if (d.redirect) {
+      window.location.href = d.redirect;
     } else {
-      // Security: don't reveal whether email exists — always generic
-      showError('Incorrect email or password.');
+      showError(r.status === 401 ? 'Incorrect email or password.' : (d.error || 'Sign-in failed. Please try again.'));
       btn.disabled = false;
       btn.innerHTML = 'Sign in';
     }

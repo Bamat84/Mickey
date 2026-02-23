@@ -248,7 +248,7 @@ def send_tc_email():
     content = (
         _h1("Mickey Terms of Service") +
         _p("You requested a copy of the Mickey Terms of Service and Privacy Policy.") +
-        _btn(f"{PLATFORM_URL}/terms.pdf", "Download Terms of Service (PDF)")
+        _btn(f"{PLATFORM_URL}/terms", "Read Terms of Service")
     )
     _send(email, email, "Mickey — Terms of Service", _base_template(content))
     return jsonify({"ok": True})
@@ -430,6 +430,11 @@ def do_signin():
 
     if firm["status"] in ("rejected", "suspended"):
         return jsonify({"error": "This account has been suspended. Contact hello@askmickey.io."}), 403
+
+    if firm["status"] == "trial_expired":
+        _firm_session(firm, user)
+        record_login(firm, user["user_id"])
+        return jsonify({"ok": True, "redirect": "/trial-expired"})
 
     # ── Successful sign in ────────────────────────────────────
     _clear_auth_attempts(ip)
