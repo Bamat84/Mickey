@@ -2485,57 +2485,182 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
 
 
       <div class="module" id="mod-compliance">
-        <iframe id="compliance-frame" src="/compliance" style="width:100%;height:100%;border:none;display:block;"></iframe>
-      </div><!-- /mod-compliance -->
 
-<!-- SETTINGS MODULE (Users tab) -->
-<div id="module-settings" class="module" style="display:none;flex:1;overflow:hidden;">
-  <div class="sub-nav">
-    <div class="sub-title">Settings</div>
-    <div class="sub-item active" data-view="settings-users" onclick="setView('settings','settings-users')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users &amp; Access</div></div>
-    <div class="sub-item" data-view="settings-compliance" onclick="setView('settings','settings-compliance')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Compliance settings</div></div>
-  </div>
-  <div class="content" id="settings-content">
-    <!-- USERS VIEW -->
-    <div class="view active" id="view-settings-settings-users">
-      <div class="topbar"><div class="topbar-left"><h1>Users &amp; Access</h1><p>Manage team roles and module visibility · Maximum 5 users per firm</p></div>
-      <div class="topbar-actions"><button class="btn btn-primary" onclick="openModal('modal-invite')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite user</button></div></div>
-      <div class="section" style="padding-top:14px;">
-        <div class="alert-bar alert-blue" style="margin-bottom:14px;">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span><strong>Module access:</strong> Uncheck a module to hide it completely from that user's sidebar. Whistleblowing is hidden by default — enable only for designated handlers.</span>
-        </div>
-        <div id="users-table-wrap">
-          <div class="empty" style="padding:30px"><p>Loading users…</p></div>
-        </div>
-      </div>
-    </div>
-    <!-- COMPLIANCE SETTINGS VIEW -->
-    <div class="view" id="view-settings-settings-compliance">
-      <div class="topbar"><div class="topbar-left"><h1>Compliance settings</h1><p>Jurisdiction, thresholds and firm-level defaults</p></div>
-      <div class="topbar-actions"><button class="btn btn-primary" onclick="saveComplianceSettings()">Save settings</button></div></div>
-      <div class="section" style="padding-top:14px;">
-        <div class="info-card" style="margin-bottom:12px;">
-          <div class="sec-divider" style="margin-top:0">Jurisdiction</div>
-          <div class="form-row">
-            <div class="form-group"><label>Primary jurisdiction</label><select class="form-control" id="setting-primary-jurisdiction"><option value="BE">Belgium</option><option value="FR">France</option><option value="DE">Germany</option><option value="NL">Netherlands</option><option value="LU">Luxembourg</option><option value="GB">United Kingdom</option><option value="IE">Ireland</option><option value="ES">Spain</option><option value="IT">Italy</option><option value="PL">Poland</option><option value="OTHER">Other EU</option></select><div class="form-hint">Determines supervisory authority and default notification thresholds</div></div>
-            <div class="form-group"><label>Additional jurisdictions</label><input class="form-control" id="setting-extra-jurisdictions" placeholder="e.g. FR, NL, LU"><div class="form-hint">Comma-separated country codes where your firm operates</div></div>
+        <!-- GDPR MODULE -->
+        <div id="module-gdpr" style="display:none;flex:1;overflow:hidden;">
+          <div class="sub-nav">
+            <div class="sub-title">GDPR</div>
+            <div class="sub-item active" data-view="dpo" onclick="setView('gdpr','dpo')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>DPO</div></div>
+            <div class="sub-item" data-view="ropa" onclick="setView('gdpr','ropa')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>RoPA</div><span class="nav-badge nb-amber" id="badge-ropa" style="display:none"></span></div>
+            <div class="sub-item" data-view="dsr" onclick="setView('gdpr','dsr')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>DSRs</div><span class="nav-badge nb-red" id="badge-dsr" style="display:none"></span></div>
+            <div class="sub-item" data-view="breach" onclick="setView('gdpr','breach')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Data Breaches</div><span class="nav-badge nb-red" id="badge-breach" style="display:none"></span></div>
+            <div class="sub-item" data-view="dpia" onclick="setView('gdpr','dpia')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>DPIAs</div><span class="nav-badge nb-amber" id="badge-dpia" style="display:none"></span></div>
+            <div class="sub-item" data-view="tia" onclick="setView('gdpr','tia')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>TIAs</div><span class="nav-badge nb-muted" id="badge-tia" style="display:none"></span></div>
+            <div class="sub-item" data-view="dpa" onclick="setView('gdpr','dpa')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/></svg>DPAs</div><span class="nav-badge nb-muted" id="badge-dpa" style="display:none"></span></div>
+            <div class="sub-divider"></div>
+            <div class="sub-item" data-view="gdpr-policies" onclick="setView('gdpr','gdpr-policies')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Policies &amp; Advice</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-section-label">Other modules</div>
+            <div class="sub-item" onclick="setModule('abc')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Anti-Bribery</div></div>
+            <div class="sub-item" id="sub-wb-link" onclick="setModule('wb')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Whistleblowing</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-section-label">Export</div>
+            <div class="sub-item" onclick="exportAudit('gdpr')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Audit report</div></div>
           </div>
-          <div class="sec-divider">Gift &amp; Hospitality thresholds</div>
-          <div class="form-row">
-            <div class="form-group"><label>Pre-clearance required above (€)</label><input class="form-control" type="number" id="setting-gift-threshold" placeholder="50"><div class="form-hint">Gifts above this value require approval before acceptance</div></div>
-            <div class="form-group"><label>Auto-decline above (€)</label><input class="form-control" type="number" id="setting-gift-autodecline" placeholder="200"><div class="form-hint">Gifts above this value are automatically flagged for decline</div></div>
+          <div class="content" id="gdpr-content">
+            <div class="view active" id="view-gdpr-dpo">
+              <div class="topbar"><div class="topbar-left"><h1>Data Protection Officer</h1><p id="dpo-subtitle">Art. 37–39 GDPR · Appointment, rationale &amp; supervisory authority</p></div><div class="topbar-actions"><button class="btn btn-secondary editor-only" onclick="openModal('modal-dpo')"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Edit DPO record</button></div></div>
+              <div style="padding:14px 22px;overflow-y:auto;flex:1;" id="dpo-content"><div class="empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><h3>No DPO record</h3><p>Add your Data Protection Officer details to get started.</p><button class="btn btn-primary editor-only" style="margin-top:12px;" onclick="openModal('modal-dpo')">Add DPO record</button></div></div>
+            </div>
+            <div class="view" id="view-gdpr-ropa">
+              <div class="topbar"><div class="topbar-left"><h1>Record of Processing Activities</h1><p>Art. 30 GDPR · Controller (Art. 30(1)) and processor (Art. 30(2)) records</p></div><div class="topbar-actions"><button class="btn btn-secondary" onclick="exportRegister('ropa')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Art. 30</button><button class="btn btn-primary editor-only" onclick="openModal('modal-ropa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add activity</button></div></div>
+              <div class="rag-strip" id="ropa-rag"></div>
+              <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search activities…" oninput="filterTable('ropa-table',this.value)"></div><span class="chip active" onclick="filterChip(this,'ropa-table','','role')">All</span><span class="chip" onclick="filterChip(this,'ropa-table','controller','role')">Controller</span><span class="chip" onclick="filterChip(this,'ropa-table','processor','role')">Processor</span></div>
+              <div class="section"><div class="table-wrap"><table id="ropa-table"><thead><tr><th style="width:26%">Processing activity</th><th>Role</th><th>Legal basis</th><th>Data categories</th><th>Retention</th><th>Review due</th><th>Status</th><th></th></tr></thead><tbody id="ropa-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No activities recorded yet.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-dsr">
+              <div class="topbar"><div class="topbar-left"><h1>Data Subject Requests</h1><p>Art. 15–22 GDPR · 1 calendar month deadline</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-dsr')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log DSR</button></div></div>
+              <div class="rag-strip" id="dsr-rag"></div>
+              <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search requests…" oninput="filterTable('dsr-table',this.value)"></div><span class="chip active" onclick="filterChip(this,'dsr-table','','status')">Open</span><span class="chip" onclick="filterChip(this,'dsr-table','closed','status')">Closed</span><span class="chip" onclick="filterChip(this,'dsr-table','controller','role')">Controller</span><span class="chip" onclick="filterChip(this,'dsr-table','processor','role')">Processor</span></div>
+              <div class="section"><div id="dsr-alerts"></div><div class="table-wrap"><table id="dsr-table"><thead><tr><th>Requester</th><th>Right</th><th>Role</th><th>Received</th><th>Deadline</th><th>Days left</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dsr-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No DSRs recorded yet.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-breach">
+              <div class="topbar"><div class="topbar-left"><h1>Data Breaches</h1><p>Art. 33–34 GDPR · 72-hour SA notification clock from detection</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-breach')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log breach</button></div></div>
+              <div class="rag-strip" id="breach-rag"></div>
+              <div class="section" style="padding-top:8px;"><div id="breach-alerts"></div><div class="table-wrap"><table><thead><tr><th>Ref</th><th style="width:28%">Description</th><th>Type</th><th>Detected</th><th>72h deadline</th><th>Risk</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="breach-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No breaches recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-dpia">
+              <div class="topbar"><div class="topbar-left"><h1>Data Protection Impact Assessments</h1><p>Art. 35 GDPR · 7-stage workflow · DPO consultation mandatory</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-dpia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Start DPIA</button></div></div>
+              <div class="rag-strip" id="dpia-rag"></div>
+              <div class="section"><div class="table-wrap"><table><thead><tr><th style="width:28%">Processing activity</th><th>Stage</th><th>Role</th><th>DPO consulted</th><th>Risk level</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dpia-tbody"><tr><td colspan="7"><div class="empty" style="padding:30px"><p>No DPIAs started.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-tia">
+              <div class="topbar"><div class="topbar-left"><h1>Transfer Impact Assessments</h1><p>Art. 44+ GDPR · Post-Schrems II · One TIA per exporter–importer–country combination</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-tia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New TIA</button></div></div>
+              <div class="rag-strip" id="tia-rag"></div>
+              <div class="section"><div class="table-wrap"><table><thead><tr><th>Importer</th><th>Country</th><th>Mechanism</th><th>Risk</th><th>Reassess by</th><th>DPA linked</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="tia-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No TIAs recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-dpa">
+              <div class="topbar"><div class="topbar-left"><h1>Data Processing Agreements</h1><p>Art. 28 GDPR · Agreements with processors and controllers</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-dpa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add DPA</button></div></div>
+              <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th style="width:25%">Counterparty</th><th>Our role</th><th>Purpose</th><th>TIA linked</th><th>Signed</th><th>Review</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dpa-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No DPAs recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-gdpr-gdpr-policies">
+              <div class="topbar" style="padding-bottom:10px;"><div class="topbar-left"><h1>Policies &amp; Advice — GDPR</h1><p>Policies, guidance notes and Mickey-generated advice</p></div><div class="topbar-actions"><button class="btn btn-secondary editor-only" onclick="openModal('modal-upload-policy','gdpr')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Upload document</button><button class="btn btn-primary editor-only" onclick="openModal('modal-add-advice','gdpr')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add advice note</button></div></div>
+              <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search…" oninput="filterPolicies('gdpr',this.value)"></div><span class="chip active">All</span><span class="chip" onclick="filterPolicies('gdpr','','policy')">Policy</span><span class="chip" onclick="filterPolicies('gdpr','','advice')">Advice</span><span class="chip" onclick="filterPolicies('gdpr','','template')">Template</span></div>
+              <div class="policy-grid" id="policies-gdpr"></div>
+            </div>
+          </div><!-- /gdpr-content -->
+        </div><!-- /module-gdpr -->
+
+        <!-- ABC MODULE -->
+        <div id="module-abc" style="display:none;flex:1;overflow:hidden;">
+          <div class="sub-nav">
+            <div class="sub-title">Anti-Bribery</div>
+            <div class="sub-item active" data-view="gifts" onclick="setView('abc','gifts')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/></svg>Gifts &amp; Hospitality</div><span class="nav-badge nb-amber" id="badge-gifts" style="display:none"></span></div>
+            <div class="sub-item" data-view="coi" onclick="setView('abc','coi')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>Conflicts of Interest</div><span class="nav-badge nb-amber" id="badge-coi" style="display:none"></span></div>
+            <div class="sub-item" data-view="tpdd" onclick="setView('abc','tpdd')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Third-Party DD</div><span class="nav-badge nb-red" id="badge-tpdd" style="display:none"></span></div>
+            <div class="sub-item" data-view="donations" onclick="setView('abc','donations')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Political Donations</div></div>
+            <div class="sub-item editor-only" data-view="flags" onclick="setView('abc','flags')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>Red Flag Log</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-item" data-view="abc-policies" onclick="setView('abc','abc-policies')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Policies &amp; Advice</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-section-label">Other modules</div>
+            <div class="sub-item" onclick="setModule('gdpr')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>GDPR</div></div>
+            <div class="sub-item" id="abc-wb-link" onclick="setModule('wb')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>Whistleblowing</div></div>
           </div>
-          <div class="sec-divider">Whistleblowing defaults</div>
-          <div class="form-row">
-            <div class="form-group"><label>WB channel description</label><input class="form-control" id="setting-wb-channel" placeholder="e.g. Internal online form at wb@company.com"><div class="form-hint">Shown on the WB intake form</div></div>
-            <div class="form-group"><label>Default handler</label><input class="form-control" id="setting-wb-handler" placeholder="Name of default case handler"></div>
+          <div class="content" id="abc-content">
+            <div class="view active" id="view-abc-gifts">
+              <div class="topbar"><div class="topbar-left"><h1>Gifts &amp; Hospitality</h1><p>All gifts and entertainment must be logged · Pre-clearance above policy threshold</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-gift')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log gift</button></div></div>
+              <div class="rag-strip" id="gifts-rag"></div>
+              <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search…" oninput="filterTable('gifts-table',this.value)"></div><span class="chip active">All</span><span class="chip" onclick="filterChip(this,'gifts-table','received','direction')">Received</span><span class="chip" onclick="filterChip(this,'gifts-table','given','direction')">Given</span><span class="chip" onclick="filterChip(this,'gifts-table','pending','status')">Pending</span></div>
+              <div class="section"><div class="table-wrap"><table id="gifts-table"><thead><tr><th>Employee</th><th>Direction</th><th>Type</th><th>Third party</th><th>Country</th><th>Value</th><th>Date</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="gifts-tbody"><tr><td colspan="9"><div class="empty" style="padding:30px"><p>No gifts recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-abc-coi">
+              <div class="topbar"><div class="topbar-left"><h1>Conflicts of Interest</h1><p>Annual declaration · All employees and board members</p></div><div class="topbar-actions"><button class="btn btn-secondary editor-only" id="btn-send-coi-reminders">Send reminders</button><button class="btn btn-primary editor-only" onclick="openModal('modal-coi')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log declaration</button></div></div>
+              <div class="rag-strip" id="coi-rag"></div>
+              <div class="section"><div id="coi-alerts"></div><div class="table-wrap"><table><thead><tr><th style="width:22%">Person</th><th>Category</th><th>Year</th><th>Declaration date</th><th>Conflict</th><th>Approved by</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="coi-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No COI declarations recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-abc-tpdd">
+              <div class="topbar"><div class="topbar-left"><h1>Third-Party Due Diligence</h1><p>Agents, intermediaries, JV partners, high-risk suppliers · Country risk auto-detected</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-tpdd')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add third party</button></div></div>
+              <div class="rag-strip" id="tpdd-rag"></div>
+              <div class="section"><div class="table-wrap"><table><thead><tr><th style="width:22%">Company</th><th>Type</th><th>Country</th><th>DD level</th><th>Last DD</th><th>Next review</th><th>Country risk</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="tpdd-tbody"><tr><td colspan="9"><div class="empty" style="padding:30px"><p>No third parties recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-abc-donations">
+              <div class="topbar"><div class="topbar-left"><h1>Political Donations &amp; Sponsorships</h1><p>Corporate donations, sponsorships, charitable contributions · Board approval required</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-donation')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log donation</button></div></div>
+              <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th>Recipient</th><th>Type</th><th>Amount</th><th>Date</th><th>Jurisdiction</th><th>Board approval</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="donations-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No donations recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-abc-flags">
+              <div class="topbar"><div class="topbar-left"><h1>Red Flag Log</h1><p>Internal record for legal review · Restricted to editors and admin</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-flag')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log concern</button></div></div>
+              <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th>Date</th><th style="width:30%">Description</th><th>Related party</th><th>Country</th><th>Severity</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="flags-tbody"><tr><td colspan="7"><div class="empty" style="padding:30px"><p>No red flags recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-abc-abc-policies">
+              <div class="topbar" style="padding-bottom:10px;"><div class="topbar-left"><h1>Policies &amp; Advice — Anti-Bribery</h1><p>ABC policies, guidance and advice notes</p></div><div class="topbar-actions"><button class="btn btn-secondary editor-only" onclick="openModal('modal-upload-policy','abc')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Upload</button><button class="btn btn-primary editor-only" onclick="openModal('modal-add-advice','abc')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add advice note</button></div></div>
+              <div class="policy-grid" id="policies-abc"></div>
+            </div>
+          </div><!-- /abc-content -->
+        </div><!-- /module-abc -->
+
+        <!-- WHISTLEBLOWING MODULE -->
+        <div id="module-wb" style="display:none;flex:1;overflow:hidden;">
+          <div class="sub-nav">
+            <div class="sub-title">Whistleblowing</div>
+            <div class="sub-item active" data-view="wb-cases" onclick="setView('wb','wb-cases')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Cases</div><span class="nav-badge nb-amber" id="badge-wb" style="display:none"></span></div>
+            <div class="sub-item" data-view="wb-annual" onclick="setView('wb','wb-annual')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Annual report</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-item" data-view="wb-policies" onclick="setView('wb','wb-policies')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Policies &amp; Advice</div></div>
+            <div class="sub-divider"></div>
+            <div class="sub-section-label">Other modules</div>
+            <div class="sub-item" onclick="setModule('gdpr')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>GDPR</div></div>
+            <div class="sub-item" onclick="setModule('abc')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg>Anti-Bribery</div></div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+          <div class="content" id="wb-content">
+            <div class="view active" id="view-wb-wb-cases">
+              <div class="topbar"><div class="topbar-left"><h1>Whistleblowing Cases</h1><p>EU Directive 2019/1937 · 7-day acknowledgement · 3-month investigation deadline</p></div><div class="topbar-actions"><button class="btn btn-primary editor-only" onclick="openModal('modal-wb')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log report</button></div></div>
+              <div class="rag-strip" id="wb-rag"></div>
+              <div class="section"><div id="wb-alerts"></div><div class="table-wrap"><table><thead><tr><th>Ref</th><th>Category</th><th>Reporter</th><th>Received</th><th>Acknowledge by</th><th>Outcome by</th><th>Handler</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="wb-tbody"><tr><td colspan="9"><div class="empty" style="padding:30px"><p>No cases recorded.</p></div></td></tr></tbody></table></div></div>
+            </div>
+            <div class="view" id="view-wb-wb-annual">
+              <div class="topbar"><div class="topbar-left"><h1>Annual Report</h1><p>EU Directive 2019/1937 · Statistical report (no individual case detail)</p></div><div class="topbar-actions"><button class="btn btn-secondary" onclick="exportAudit('wb')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export report</button></div></div>
+              <div class="section" style="padding-top:14px;"><div id="wb-annual-content"><div class="empty" style="padding:48px"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><h3>Annual statistics</h3><p>Loading…</p></div></div></div>
+            </div>
+            <div class="view" id="view-wb-wb-policies">
+              <div class="topbar" style="padding-bottom:10px;"><div class="topbar-left"><h1>Policies &amp; Advice — Whistleblowing</h1><p>WB policies, handler guidance and advice notes</p></div><div class="topbar-actions"><button class="btn btn-secondary editor-only" onclick="openModal('modal-upload-policy','wb')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Upload</button><button class="btn btn-primary editor-only" onclick="openModal('modal-add-advice','wb')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add advice note</button></div></div>
+              <div class="policy-grid" id="policies-wb"></div>
+            </div>
+          </div><!-- /wb-content -->
+        </div><!-- /module-wb -->
+
+        <!-- COMPLIANCE SETTINGS MODULE -->
+        <div id="module-settings" style="display:none;flex:1;overflow:hidden;">
+          <div class="sub-nav">
+            <div class="sub-title">Settings</div>
+            <div class="sub-item active" data-view="settings-users" onclick="setView('settings','settings-users')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users &amp; Access</div></div>
+            <div class="sub-item" data-view="settings-compliance" onclick="setView('settings','settings-compliance')"><div class="sub-item-inner"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Compliance settings</div></div>
+          </div>
+          <div class="content" id="settings-content">
+            <div class="view active" id="view-settings-settings-users">
+              <div class="topbar"><div class="topbar-left"><h1>Users &amp; Access</h1><p>Manage team roles and module visibility · Maximum 5 users per firm</p></div><div class="topbar-actions"><button class="btn btn-primary" onclick="openModal('modal-invite')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite user</button></div></div>
+              <div class="section" style="padding-top:14px;">
+                <div class="alert-bar alert-blue" style="margin-bottom:14px;"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span><strong>Module access:</strong> Uncheck a module to hide it completely from that user's sidebar. Whistleblowing is hidden by default — enable only for designated handlers.</span></div>
+                <div id="users-table-wrap"><div class="empty" style="padding:30px"><p>Loading users…</p></div></div>
+              </div>
+            </div>
+            <div class="view" id="view-settings-settings-compliance">
+              <div class="topbar"><div class="topbar-left"><h1>Compliance settings</h1><p>Jurisdiction, thresholds and firm-level defaults</p></div><div class="topbar-actions"><button class="btn btn-primary" onclick="saveComplianceSettings()">Save settings</button></div></div>
+              <div class="section" style="padding-top:14px;">
+                <div class="info-card" style="margin-bottom:12px;">
+                  <div class="sec-divider" style="margin-top:0">Jurisdiction</div>
+                  <div class="form-row"><div class="form-group"><label>Primary jurisdiction</label><select class="form-control" id="setting-primary-jurisdiction"><option value="BE">Belgium</option><option value="FR">France</option><option value="DE">Germany</option><option value="NL">Netherlands</option><option value="LU">Luxembourg</option><option value="GB">United Kingdom</option><option value="IE">Ireland</option><option value="ES">Spain</option><option value="IT">Italy</option><option value="PL">Poland</option><option value="OTHER">Other EU</option></select><div class="form-hint">Determines supervisory authority and default notification thresholds</div></div><div class="form-group"><label>Additional jurisdictions</label><input class="form-control" id="setting-extra-jurisdictions" placeholder="e.g. FR, NL, LU"><div class="form-hint">Comma-separated country codes where your firm operates</div></div></div>
+                  <div class="sec-divider">Gift &amp; Hospitality thresholds</div>
+                  <div class="form-row"><div class="form-group"><label>Pre-clearance required above (€)</label><input class="form-control" type="number" id="setting-gift-threshold" placeholder="50"><div class="form-hint">Gifts above this value require approval before acceptance</div></div><div class="form-group"><label>Auto-decline above (€)</label><input class="form-control" type="number" id="setting-gift-autodecline" placeholder="200"><div class="form-hint">Gifts above this value are automatically flagged for decline</div></div></div>
+                  <div class="sec-divider">Whistleblowing defaults</div>
+                  <div class="form-row"><div class="form-group"><label>WB channel description</label><input class="form-control" id="setting-wb-channel" placeholder="e.g. Internal online form at wb@company.com"><div class="form-hint">Shown on the WB intake form</div></div><div class="form-group"><label>Default handler</label><input class="form-control" id="setting-wb-handler" placeholder="Name of default case handler"></div></div>
+                </div>
+              </div>
+            </div>
+          </div><!-- /settings-content -->
+        </div><!-- /module-settings -->
+
+      </div><!-- /mod-compliance -->
 
 <!-- ═══════════════════════════════════════════════════════ MODALS ══ -->
 
@@ -5521,7 +5646,7 @@ function applyModuleVisibility() {
 // ── Module / View switching ───────────────────────────────────────────────
 function setModule(m) {
   STATE.currentModule = m;
-  ['module-gdpr','module-abc','module-wb'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+  ['module-gdpr','module-abc','module-wb','module-settings'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
   const mod = document.getElementById('module-' + m);
   if (mod) { mod.style.display = 'flex'; mod.style.flex = '1'; }
   const v = STATE.currentView[m] || '';
