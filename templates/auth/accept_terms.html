@@ -20,7 +20,8 @@
 </div>
 <script>
 async function accept() {
-  const r = await fetch('/api/accept-terms', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'});
+  const csrf = await fetch('/api/csrf').then(r=>r.json()).then(d=>d.token).catch(()=>'');
+  const r = await fetch('/api/accept-terms', {method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':csrf}, body:'{}'});
   const d = await r.json();
   if (d.ok) window.location = d.redirect || '/app';
 }

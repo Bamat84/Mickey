@@ -267,38 +267,6 @@ def send_rejection_email(
     return _send(to_email, display_name, "Your Mickey registration — update", _base_template(content))
 
 
-def send_invite_email(
-    to_email: str,
-    firm_name: str,
-    invited_by_name: str,
-    role: str,
-    token: str,
-) -> bool:
-    """
-    Sent to a team member invited by the firm admin.
-    They click the link to set their password and accept T&Cs.
-    """
-    invite_url = f"{PLATFORM_URL}/invite/{token}"
-
-    role_labels = {
-        "admin":               "Admin",
-        "member":              "Member",
-        "knowledge_curator":   "Knowledge Curator",
-    }
-    role_label = role_labels.get(role, role.capitalize())
-
-    content = (
-        _h1(f"You've been invited to {firm_name} on Mickey") +
-        _p(f"{invited_by_name} has invited you to join <strong>{firm_name}</strong> "
-           f"on Mickey Legal as <strong>{role_label}</strong>.") +
-        _p("Click the button below to set up your account. "
-           "The invitation expires in 7 days.") +
-        _btn(invite_url, "Accept invitation") +
-        _p("If you weren't expecting this invitation, you can safely ignore this email.")
-    )
-    return _send(to_email, to_email, f"{invited_by_name} invited you to Mickey", _base_template(content))
-
-
 def send_new_firm_notification(
     firm_name: str,
     firm_id: str,
@@ -369,7 +337,7 @@ def send_invite_email(to_email: str, display_name: str, firm_name: str,
         _h1(f"You\'re invited to join {firm_name} on Mickey") +
         _p(f"Hi {display_name or to_email},") +
         _p(f"{invited_by} has invited you to join <strong>{firm_name}</strong> on Mickey Legal Intelligence.") +
-        _btn("Accept invitation", invite_url) +
+        _btn(invite_url, "Accept invitation") +
         _p(f"This invitation expires in 7 days.") +
         _p("If you weren\'t expecting this invitation, you can safely ignore this email.")
     )

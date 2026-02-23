@@ -293,14 +293,6 @@ def get_firm_user_count(firm: dict) -> int:
     return len(firm.get("users", {}))
 
 
-def update_user_field(firm: dict, user_id: str, **fields) -> None:
-    """Update specific fields on a user and save the firm atomically."""
-    if user_id not in firm["users"]:
-        return
-    firm["users"][user_id].update(fields)
-    save_firm(firm)
-
-
 def record_login(firm: dict, user_id: str) -> None:
     update_user_field(
         firm, user_id,
@@ -312,7 +304,7 @@ def accept_tc(firm: dict, user_id: str, ip: str, version: str = "1.0") -> None:
     update_user_field(
         firm, user_id,
         tc_accepted_at=datetime.datetime.utcnow().isoformat(),
-        tc_version=version,
+        tc_version_accepted=version,
         tc_ip=ip,
     )
 
@@ -363,31 +355,6 @@ def create_email_token(
         "role":       None,
         "created_at": now.isoformat(),
         "expires_at": (now + datetime.timedelta(hours=TOKEN_EXPIRY_HOURS)).isoformat(),
-        "used":       False,
-    }
-    _atomic_write(_token_path(token), rec)
-    return token
-
-
-def create_invite_token(
-    email: str,
-    firm_id: str,
-    role: str,
-    invited_by_user_id: str,
-) -> str:
-    """Create a team invite token (user doesn't exist yet). Returns token."""
-    token = new_token()
-    now   = datetime.datetime.utcnow()
-    rec   = {
-        "token":      token,
-        "type":       "invite",
-        "email":      email.lower().strip(),
-        "firm_id":    firm_id,
-        "user_id":    None,
-        "role":       role,
-        "invited_by": invited_by_user_id,
-        "created_at": now.isoformat(),
-        "expires_at": (now + datetime.timedelta(hours=TOKEN_EXPIRY_HOURS * 7)).isoformat(),  # 7 days for invites
         "used":       False,
     }
     _atomic_write(_token_path(token), rec)
@@ -598,18 +565,6 @@ def list_all_firms() -> list:
                 "country":     rec.get("country", ""),
             })
     return sorted(firms, key=lambda x: x.get("created_at", ""), reverse=True)
-
-
-def _firm_path(firm_id: str):
-    return FIRMS_DIR / f"{firm_id}.json"
-
-def save_firm(firm: dict) -> None:
-    """Save firm data atomically."""
-    firm_id = firm.get("firm_id", "")
-    if not firm_id:
-        return
-    path = FIRMS_DIR / f"{firm_id}.json"
-    _atomic_write(path, firm)
 
 
 def create_invite_token(firm_id: str, email: str, display_name: str,

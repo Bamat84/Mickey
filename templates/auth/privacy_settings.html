@@ -98,8 +98,13 @@ function showAlert(msg, ok=true) {
   setTimeout(() => b.innerHTML='', 5000);
 }
 
+async function _csrf() {
+  return fetch('/api/csrf').then(r=>r.json()).then(d=>d.token).catch(()=>'');
+}
+
 async function exportData() {
-  const r = await fetch('/api/gdpr/export', { method: 'POST' });
+  const csrf = await _csrf();
+  const r = await fetch('/api/gdpr/export', { method: 'POST', headers: {'X-CSRF-Token': csrf} });
   if (!r.ok) { showAlert('Export failed', false); return; }
   const blob = await r.blob();
   const url  = URL.createObjectURL(blob);
@@ -113,7 +118,8 @@ async function deleteAccount() {
   const email = document.getElementById('del-user-confirm').value.trim();
   if (email !== '{{ email }}') { showAlert('Email does not match', false); return; }
   if (!confirm('This will permanently delete your account. Continue?')) return;
-  const r = await fetch('/api/gdpr/request-deletion', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
+  const csrf = await _csrf();
+  const r = await fetch('/api/gdpr/request-deletion', { method: 'POST', headers: {'Content-Type':'application/json','X-CSRF-Token':csrf}, body: JSON.stringify({}) });
   const d = await r.json();
   if (d.ok) { showAlert(d.message); setTimeout(() => window.location='/signin', 2000); }
   else showAlert(d.error || 'Failed', false);
@@ -121,7 +127,8 @@ async function deleteAccount() {
 
 async function deleteFirm() {
   const val = document.getElementById('del-firm-confirm').value.trim();
-  const r = await fetch('/api/gdpr/delete-firm', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({confirm: val}) });
+  const csrf = await _csrf();
+  const r = await fetch('/api/gdpr/delete-firm', { method: 'POST', headers: {'Content-Type':'application/json','X-CSRF-Token':csrf}, body: JSON.stringify({confirm: val}) });
   const d = await r.json();
   if (d.ok) { showAlert(d.message); setTimeout(() => window.location='/signin', 3000); }
   else showAlert(d.error || 'Failed', false);

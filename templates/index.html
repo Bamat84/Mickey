@@ -2945,29 +2945,6 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
   </div>
 </div>
 
-<!-- Invite User Modal -->
-<div class="overlay" id="modal-invite">
-  <div class="modal">
-    <div class="modal-title">Invite team member</div>
-    <div class="modal-sub">They will receive an email to set their password · Roles and access can be changed after invitation</div>
-    <div class="form-row">
-      <div class="form-group"><label>Full name</label><input class="form-control" id="invite-name" placeholder="Full name"></div>
-      <div class="form-group"><label>Email address *</label><input class="form-control" type="email" id="invite-email" placeholder="colleague@company.com"></div>
-    </div>
-    <div class="form-row"><div class="form-group"><label>Role *</label><select class="form-control" id="invite-role"><option value="viewer">Viewer — read only</option><option value="editor">Editor — can create and edit</option><option value="admin">Admin — full access including user management</option></select><div class="form-hint">You can change this after the invitation is sent</div></div></div>
-    <div class="form-section-label">Module access</div>
-    <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="compliance" style="accent-color:var(--green);"> Compliance (GDPR, ABC)</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="whistleblowing" style="accent-color:var(--green);"> Whistleblowing <span style="font-size:10px;color:var(--text-muted);">— hidden by default, enable only for designated handlers</span></label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="documents" checked style="accent-color:var(--green);"> Documents</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="corporate" style="accent-color:var(--green);"> Corporate Housekeeping</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="radar" checked style="accent-color:var(--green);"> Legal Radar</label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer;"><input type="checkbox" class="invite-module" value="knowledge" checked style="accent-color:var(--green);"> Knowledge Base</label>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-invite')">Cancel</button><button class="btn btn-primary" onclick="sendInvite()">Send invitation</button></div>
-  </div>
-</div>
-
 <!-- Confirm Modal -->
 <div class="overlay" id="modal-confirm">
   <div class="modal" style="width:400px;">

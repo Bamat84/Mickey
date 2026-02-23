@@ -49,6 +49,13 @@ def _rate_key() -> str:
     fwd = request.headers.get("X-Forwarded-For", "")
     return fwd.split(",")[0].strip() if fwd else (request.remote_addr or "unknown")
 
+def _csrf_required():
+    """Return 403 if X-CSRF-Token header doesn't match session token."""
+    token = request.headers.get("X-CSRF-Token", "")
+    if not token or token != session.get("csrf_token", ""):
+        return jsonify({"error": "CSRF validation failed"}), 403
+    return None
+
 def _check_auth_rate(key: str) -> tuple:
     """Returns (allowed: bool, seconds_to_wait: int)."""
     now   = time.time()
@@ -634,6 +641,8 @@ def accept_terms_page():
 @auth_bp.route("/api/accept-terms", methods=["POST"])
 def api_accept_terms():
     """Record T&C acceptance."""
+    e = _csrf_required();
+    if e: return e
     if not session.get("firm_id"):
         return jsonify({"error": "Not authenticated"}), 401
     from auth.data import record_tc_acceptance
@@ -666,6 +675,8 @@ def privacy_settings():
 @auth_bp.route("/api/gdpr/export", methods=["POST"])
 def gdpr_export():
     """GDPR Art. 20 — data portability. Export all user data as JSON."""
+    e = _csrf_required();
+    if e: return e
     if not session.get("firm_id"):
         return jsonify({"error": "Not authenticated"}), 401
 
@@ -687,7 +698,7 @@ def gdpr_export():
             "email":        user.get("email",""),
             "role":         user.get("role",""),
             "created_at":   user.get("created_at",""),
-            "last_signin":  user.get("last_signin",""),
+            "last_signin":  user.get("last_login",""),
             "tc_accepted_at": user.get("tc_accepted_at",""),
         },
         "firm_data": {
@@ -712,6 +723,8 @@ def gdpr_export():
 @auth_bp.route("/api/gdpr/request-deletion", methods=["POST"])
 def gdpr_request_deletion():
     """GDPR Art. 17 — right to erasure. Flags account for deletion."""
+    e = _csrf_required();
+    if e: return e
     if not session.get("firm_id"):
         return jsonify({"error": "Not authenticated"}), 401
 
@@ -755,6 +768,8 @@ def gdpr_request_deletion():
 @auth_bp.route("/api/gdpr/delete-firm", methods=["POST"])
 def gdpr_delete_firm():
     """Admin only: delete entire firm and all its data."""
+    e = _csrf_required();
+    if e: return e
     if not session.get("firm_id") or session.get("role") != "admin":
         return jsonify({"error": "Not authorised"}), 403
 
@@ -1025,7 +1040,7 @@ def firm_usage():
                 "display_name": u.get("display_name",""),
                 "email":        u.get("email",""),
                 "role":         u.get("role","member"),
-                "last_signin":  u.get("last_signin",""),
+                "last_signin":  u.get("last_login",""),
             }
             for uid, u in users.items()
         ]
@@ -1232,7 +1247,7 @@ async function firmExtend(firmId) {{
 </html>"""
 
 
-@auth_bp.route("/api/platform/firm-action")
+@auth_bp.route("/api/platform/firm-action", methods=["POST"])
 def platform_firm_action():
     """Back office: approve/reject/activate/suspend a firm."""
     import hashlib
@@ -1281,7 +1296,7 @@ def platform_firm_action():
     return jsonify({"ok": True, "message": f"Firm {action}d successfully"})
 
 
-@auth_bp.route("/api/platform/firm-extend")
+@auth_bp.route("/api/platform/firm-extend", methods=["POST"])
 def platform_firm_extend():
     """Back office: extend a firm's trial."""
     import hashlib

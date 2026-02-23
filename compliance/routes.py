@@ -656,7 +656,7 @@ def get_users():
             "status": u.get("status", "active"),
             "compliance_role": u.get("compliance_role", "viewer"),
             "modules": u.get("modules", []),
-            "last_signin": u.get("last_signin", ""),
+            "last_signin": u.get("last_login", ""),
             "created_at": u.get("created_at", ""),
         })
     return ok(users)
@@ -693,9 +693,9 @@ def update_user(user_id):
 @login_required
 @admin_required
 def invite_user():
-    """Invite a new user to the firm."""
-    from auth.data import load_firm, save_firm
-    import hashlib, secrets
+    """Invite a new user to the firm via the standard token pipeline."""
+    from auth.data import load_firm, create_invite_token
+    from auth.email import send_invite_email
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
     if not email:
@@ -711,26 +711,26 @@ def invite_user():
     for u in firm.get("users", {}).values():
         if u.get("email", "").lower() == email:
             return err("This email address is already a member of your firm.")
-    # Create pending user record (they set password on first login)
-    uid = "u_" + secrets.token_hex(4)
-    invite_token = secrets.token_urlsafe(32)
-    from datetime import datetime
-    firm["users"][uid] = {
-        "user_id": uid,
-        "email": email,
-        "display_name": data.get("display_name", ""),
-        "hashed": "",  # Set on first login
-        "compliance_role": data.get("compliance_role", "viewer"),
-        "modules": data.get("modules", []),
-        "status": "pending_invite",
-        "invite_token": invite_token,
-        "invite_sent_at": datetime.utcnow().isoformat(),
-        "email_verified": False,
-        "created_at": datetime.utcnow().isoformat(),
-    }
-    save_firm(firm)
-    # TODO: Send invite email via Brevo
-    return ok({"user_id": uid, "invite_token": invite_token})
+    display_name = (data.get("display_name") or "").strip()
+    role = data.get("compliance_role") or data.get("role") or "viewer"
+    invited_by = session.get("display_name", "your admin")
+    token = create_invite_token(
+        firm_id      = firm["firm_id"],
+        email        = email,
+        display_name = display_name,
+        role         = role,
+        invited_by   = invited_by,
+    )
+    sent = send_invite_email(
+        to_email     = email,
+        display_name = display_name or email,
+        firm_name    = firm["firm_name"],
+        invited_by   = invited_by,
+        token        = token,
+    )
+    if not sent:
+        return err("Failed to send invite email — check Brevo config")
+    return ok({"message": f"Invite sent to {email}"})
 
 @compliance_bp.route("/api/settings/users/<user_id>/deactivate", methods=["POST"])
 @login_required
