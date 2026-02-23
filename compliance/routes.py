@@ -78,7 +78,7 @@ def err(msg, code=400):
 @compliance_bp.route("/compliance")
 @login_required
 def index():
-    return redirect("/app")
+    return render_template("compliance/index.html")
 
 # ── Compliance settings ───────────────────────────────────────────────────────
 
@@ -643,8 +643,8 @@ def get_dashboard():
 @admin_required
 def get_users():
     """Return all users in the firm with their compliance roles and modules."""
-    from auth.data import get_firm_data
-    firm = get_firm_data(get_firm())
+    from auth.data import load_firm
+    firm = load_firm(get_firm())
     if not firm:
         return err("Firm not found", 404)
     users = []
@@ -666,9 +666,9 @@ def get_users():
 @admin_required
 def update_user(user_id):
     """Update a user's compliance role and module access."""
-    from auth.data import get_firm_data, save_firm_data
+    from auth.data import load_firm, save_firm
     data = request.get_json(silent=True) or {}
-    firm = get_firm_data(get_firm())
+    firm = load_firm(get_firm())
     if not firm or user_id not in firm.get("users", {}):
         return err("User not found", 404)
     # Prevent admin from demoting themselves
@@ -686,7 +686,7 @@ def update_user(user_id):
     if "status" in data:
         if data["status"] in ("active", "inactive"):
             firm["users"][user_id]["status"] = data["status"]
-    save_firm_data(get_firm(), firm)
+    save_firm(firm)
     return ok(firm["users"][user_id])
 
 @compliance_bp.route("/api/settings/users/invite", methods=["POST"])
@@ -694,13 +694,13 @@ def update_user(user_id):
 @admin_required
 def invite_user():
     """Invite a new user to the firm."""
-    from auth.data import get_firm_data, save_firm_data
+    from auth.data import load_firm, save_firm
     import hashlib, secrets
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
     if not email:
         return err("Email required")
-    firm = get_firm_data(get_firm())
+    firm = load_firm(get_firm())
     if not firm:
         return err("Firm not found")
     # Check user limit
@@ -728,7 +728,7 @@ def invite_user():
         "email_verified": False,
         "created_at": datetime.utcnow().isoformat(),
     }
-    save_firm_data(get_firm(), firm)
+    save_firm(firm)
     # TODO: Send invite email via Brevo
     return ok({"user_id": uid, "invite_token": invite_token})
 
@@ -736,12 +736,12 @@ def invite_user():
 @login_required
 @admin_required
 def deactivate_user(user_id):
-    from auth.data import get_firm_data, save_firm_data
+    from auth.data import load_firm, save_firm
     if user_id == session.get("user_id"):
         return err("You cannot deactivate your own account")
-    firm = get_firm_data(get_firm())
+    firm = load_firm(get_firm())
     if not firm or user_id not in firm.get("users", {}):
         return err("User not found", 404)
     firm["users"][user_id]["status"] = "inactive"
-    save_firm_data(get_firm(), firm)
+    save_firm(firm)
     return ok()

@@ -615,7 +615,7 @@ def save_firm(firm: dict) -> None:
 def create_invite_token(firm_id: str, email: str, display_name: str,
                         role: str, invited_by: str) -> str:
     """Create a secure invite token for a new team member."""
-    token    = _random_token()
+    token    = new_token()
     expires  = (datetime.datetime.utcnow() + datetime.timedelta(days=7)).isoformat()
     rec = {
         "token":        token,
