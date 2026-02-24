@@ -6,7 +6,8 @@ All routes follow /api/compliance/{register}/{action} convention.
 import os
 import json
 from functools import wraps
-from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
+from io import BytesIO
+from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for, send_file
 from datetime import datetime
 from werkzeug.utils import secure_filename
 
@@ -745,3 +746,289 @@ def deactivate_user(user_id):
     firm["users"][user_id]["status"] = "inactive"
     save_firm(firm)
     return ok()
+
+
+# ── Export ─────────────────────────────────────────────────────────────────────
+
+_EXPORT_REGISTERS = {
+    "ropa":      ("Record of Processing Activities",        cd.get_ropa),
+    "dsrs":      ("Data Subject Requests",                  cd.get_dsrs),
+    "breaches":  ("Data Breaches",                          cd.get_breaches),
+    "dpias":     ("Data Protection Impact Assessments",     cd.get_dpias),
+    "tias":      ("Transfer Impact Assessments",            cd.get_tias),
+    "dpas":      ("Data Processing Agreements",             cd.get_dpas),
+    "gifts":     ("Gifts & Hospitality",                    cd.get_gifts),
+    "coi":       ("Conflicts of Interest",                  cd.get_coi),
+    "tpdd":      ("Third-Party Due Diligence",              cd.get_tpdd),
+    "donations": ("Political Donations",                    cd.get_donations),
+    "flags":     ("Red Flag Log",                           cd.get_flags),
+    "wb":        ("Whistleblowing Cases",                   cd.get_wb_cases),
+}
+
+# Per-register field schema: (field_key, column_header) in display order.
+_REGISTER_COLS = {
+    "ropa": [
+        ("activity_name","Activity Name"),("role","Role"),("purposes","Purposes"),
+        ("legal_basis","Legal Basis"),("data_subjects","Data Subjects"),
+        ("data_categories","Data Categories"),("recipients","Recipients"),
+        ("transfers","International Transfers"),("retention","Retention Period"),
+        ("special_category","Special Category"),("security_measures","Security Measures"),
+        ("dpia_required","DPIA Required"),("controller_name","Controller Name"),
+        ("controller_contact","Controller Contact"),("proc_categories","Processing Categories"),
+        ("dpa_ref","DPA Reference"),("review_date","Review Date"),("notes","Notes"),
+    ],
+    "dsrs": [
+        ("requester_name","Requester"),("right","Right Exercised"),("role","Our Role"),
+        ("received_date","Date Received"),("deadline","Deadline"),("channel","Channel"),
+        ("identity_verified","Identity Verified"),("third_party","Third Party"),
+        ("status","Status"),("outcome","Outcome"),("notes","Notes"),
+    ],
+    "breaches": [
+        ("ref","Reference"),("description","Description"),("breach_type","Type"),
+        ("detected_at","Detected At"),("records_affected","Records Affected"),
+        ("data_categories","Data Categories"),("risk","Risk Level"),("role","Our Role"),
+        ("containment","Containment Measures"),("sa_notified_at","SA Notified At"),
+        ("status","Status"),("resolution_note","Resolution Note"),("resolved_at","Resolved At"),
+    ],
+    "dpias": [
+        ("activity_name","Activity Name"),("trigger","Trigger"),("risk","Risk Level"),
+        ("ropa_link","RoPA Link"),("assessor","Assessor"),("description","Description"),
+        ("stage","Current Stage"),("status","Status"),
+    ],
+    "tias": [
+        ("exporter","Exporter"),("importer_name","Importer"),
+        ("destination_country","Country"),("transfer_mechanism","Transfer Mechanism"),
+        ("data_categories","Data Categories"),("purpose","Purpose"),
+        ("risk","Risk"),("reassess_by","Reassess By"),
+        ("supplementary_measures","Supplementary Measures"),
+    ],
+    "dpas": [
+        ("counterparty","Counterparty"),("our_role","Our Role"),("purpose","Purpose"),
+        ("signed","Date Signed"),("review_date","Review Date"),
+        ("tia_ref","TIA Reference"),("notes","Notes"),
+    ],
+    "gifts": [
+        ("employee_name","Employee"),("direction","Direction"),("gift_type","Gift Type"),
+        ("third_party","Third Party"),("country","Country"),("value","Value (EUR)"),
+        ("gift_date","Date"),("context","Context"),("status","Status"),("notes","Notes"),
+    ],
+    "coi": [
+        ("person_name","Person"),("coi_category","Category"),("person_role","Role"),
+        ("declaration_year","Year"),("declaration_date","Declaration Date"),
+        ("conflict_status","Conflict Status"),("conflict_description","Description"),
+        ("approved_by","Approved By"),("notes","Notes"),
+    ],
+    "tpdd": [
+        ("company_name","Company"),("third_party_type","Type"),("country","Country"),
+        ("dd_level","DD Level"),("last_dd","Last DD Date"),("next_review","Next Review"),
+        ("status","Status"),("description","Description"),
+    ],
+    "donations": [
+        ("recipient","Recipient"),("donation_type","Type"),("amount","Amount (EUR)"),
+        ("donation_date","Date"),("jurisdiction","Jurisdiction"),
+        ("board_approval_required","Board Approval Required"),
+        ("justification","Justification"),("status","Status"),
+    ],
+    "flags": [
+        ("identified_date","Date Identified"),("description","Description"),
+        ("related_party","Related Party"),("country","Country"),
+        ("severity","Severity"),("source","Source"),("status","Status"),
+    ],
+    "wb": [
+        ("ref","Reference"),("received_date","Date Received"),("category","Category"),
+        ("channel","Channel"),("reporter_type","Reporter Type"),("summary","Summary"),
+        ("handler","Handler"),("alleged","Alleged Party"),("status","Status"),
+        ("acknowledge_by","Acknowledge By"),("outcome_by","Outcome By"),
+    ],
+}
+
+
+def _export_rows(records, register):
+    """Return (headers, rows) using the defined column schema, stripping internal fields."""
+    cols = _REGISTER_COLS.get(register, [])
+    if not cols:
+        skip = {"id", "firm_id", "created_at", "updated_at"}
+        keys, seen = [], set()
+        for r in records:
+            for k in r:
+                if k not in skip and k not in seen and not k.startswith("_"):
+                    keys.append(k); seen.add(k)
+        cols = [(k, k.replace("_", " ").title()) for k in keys]
+    headers = [label for _, label in cols]
+    rows = [[str(r.get(field) or "") for field, _ in cols] for r in records]
+    return headers, rows
+
+
+def _shade_cell(cell, hex_color):
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear"); shd.set(qn("w:color"), "auto")
+    shd.set(qn("w:fill"), hex_color)
+    tcPr.append(shd)
+
+
+def _build_docx(title, firm_name, headers, rows):
+    from docx import Document
+    from docx.shared import Pt, RGBColor, Cm
+    today = datetime.now().strftime("%d %B %Y")
+    doc = Document()
+    for sec in doc.sections:
+        sec.top_margin = Cm(2); sec.bottom_margin = Cm(2)
+        sec.left_margin = Cm(2.5); sec.right_margin = Cm(2.5)
+    # Title block
+    h = doc.add_heading(firm_name, level=0)
+    h.runs[0].font.size = Pt(22); h.runs[0].font.color.rgb = RGBColor(0x1a, 0x1a, 0x2e)
+    h.paragraph_format.space_after = Pt(3)
+    p = doc.add_paragraph(title)
+    p.runs[0].font.size = Pt(13); p.runs[0].font.color.rgb = RGBColor(0x2d, 0x6a, 0x4f)
+    p.paragraph_format.space_after = Pt(2)
+    m = doc.add_paragraph(f"Exported from Mickey  ·  {today}  ·  {len(rows)} record{'s' if len(rows) != 1 else ''}")
+    m.runs[0].font.size = Pt(9); m.runs[0].font.color.rgb = RGBColor(0x99, 0x99, 0x99)
+    m.paragraph_format.space_after = Pt(14)
+    if not rows:
+        doc.add_paragraph("No records found.")
+    else:
+        tbl = doc.add_table(rows=1 + len(rows), cols=len(headers))
+        tbl.style = "Table Grid"
+        # Header row
+        hrow = tbl.rows[0]
+        for i, h in enumerate(headers):
+            cell = hrow.cells[i]
+            cell.text = h
+            run = cell.paragraphs[0].runs[0] if cell.paragraphs[0].runs else cell.paragraphs[0].add_run(h)
+            run.text = h; run.font.bold = True
+            run.font.size = Pt(8); run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+            _shade_cell(cell, "2D6A4F")
+        # Data rows
+        for ri, row in enumerate(rows):
+            trow = tbl.rows[ri + 1]
+            for ci, val in enumerate(row):
+                cell = trow.cells[ci]
+                cell.text = val
+                run = cell.paragraphs[0].runs[0] if cell.paragraphs[0].runs else cell.paragraphs[0].add_run(val)
+                run.text = val; run.font.size = Pt(8)
+                if ri % 2 == 1:
+                    _shade_cell(cell, "F5F5F5")
+    buf = BytesIO(); doc.save(buf); buf.seek(0)
+    return buf
+
+
+def _build_xlsx(title, firm_name, headers, rows):
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.utils import get_column_letter
+    today = datetime.now().strftime("%d %B %Y")
+    wb = Workbook(); ws = wb.active
+    ws.title = title[:31]
+    ws["A1"] = firm_name
+    ws["A1"].font = Font(name="Calibri", size=16, bold=True, color="1A1A2E")
+    ws["A2"] = title
+    ws["A2"].font = Font(name="Calibri", size=12, italic=True, color="2D6A4F")
+    ws["A3"] = f"Exported from Mickey  ·  {today}"
+    ws["A3"].font = Font(name="Calibri", size=9, color="999999")
+    ws.row_dimensions[1].height = 24; ws.row_dimensions[2].height = 18; ws.row_dimensions[3].height = 14
+    DATA_ROW = 5
+    green_fill = PatternFill(fill_type="solid", fgColor="2D6A4F")
+    alt_fill = PatternFill(fill_type="solid", fgColor="F5F5F5")
+    hdr_font = Font(name="Calibri", size=10, bold=True, color="FFFFFF")
+    body_font = Font(name="Calibri", size=9)
+    for ci, h in enumerate(headers, 1):
+        cell = ws.cell(row=DATA_ROW, column=ci, value=h)
+        cell.fill = green_fill; cell.font = hdr_font
+        cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    ws.row_dimensions[DATA_ROW].height = 20
+    for ri, row in enumerate(rows, DATA_ROW + 1):
+        fill = alt_fill if ri % 2 == 0 else None
+        for ci, val in enumerate(row, 1):
+            cell = ws.cell(row=ri, column=ci, value=val)
+            cell.font = body_font
+            cell.alignment = Alignment(vertical="top", wrap_text=True)
+            if fill:
+                cell.fill = fill
+    for ci in range(1, len(headers) + 1):
+        ws.column_dimensions[get_column_letter(ci)].width = 22
+    ws.freeze_panes = ws.cell(row=DATA_ROW + 1, column=1)
+    buf = BytesIO(); wb.save(buf); buf.seek(0)
+    return buf
+
+
+def _build_pdf(title, firm_name, headers, rows):
+    from fpdf import FPDF
+    today = datetime.now().strftime("%d %B %Y")
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.set_margins(14, 14, 14)
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=14)
+    GREEN, DARK, MUTED = (45, 106, 79), (26, 26, 46), (140, 140, 140)
+    # Title block
+    pdf.set_font("Helvetica", "B", 18); pdf.set_text_color(*DARK)
+    pdf.cell(0, 9, firm_name, new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "B", 11); pdf.set_text_color(*GREEN)
+    pdf.cell(0, 6, title, new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 8); pdf.set_text_color(*MUTED)
+    pdf.cell(0, 5, f"Exported from Mickey  ·  {today}  ·  {len(rows)} record{'s' if len(rows) != 1 else ''}",
+             new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    pdf.set_draw_color(*GREEN); pdf.set_line_width(0.5)
+    pdf.line(pdf.get_x(), pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
+    pdf.ln(4)
+    if not rows:
+        pdf.set_font("Helvetica", "I", 10); pdf.set_text_color(*MUTED)
+        pdf.cell(0, 8, "No records found.", new_x="LMARGIN", new_y="NEXT")
+    else:
+        usable_w = pdf.w - pdf.l_margin - pdf.r_margin
+        n = len(headers)
+        col_w = max(usable_w / n, 18)
+        row_h = 6
+        max_ch = max(int(col_w / 1.8), 8)
+        # Header
+        pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
+        pdf.set_font("Helvetica", "B", 7)
+        for h in headers:
+            pdf.cell(col_w, row_h, h[:max_ch], border=0, fill=True)
+        pdf.ln(row_h)
+        # Rows
+        pdf.set_font("Helvetica", "", 7)
+        for i, row in enumerate(rows):
+            pdf.set_fill_color(245, 245, 245) if i % 2 == 0 else pdf.set_fill_color(255, 255, 255)
+            pdf.set_text_color(*DARK)
+            for val in row:
+                pdf.cell(col_w, row_h, str(val)[:max_ch], border=0, fill=True)
+            pdf.ln(row_h)
+    # Footer
+    pdf.set_y(-12); pdf.set_font("Helvetica", "", 7); pdf.set_text_color(*MUTED)
+    pdf.cell(0, 5, f"Mickey Legal Intelligence  ·  {firm_name}  ·  Page {pdf.page_no()}", align="C")
+    return BytesIO(pdf.output())
+
+
+@compliance_bp.route("/api/compliance/export/<register>", methods=["GET"])
+@login_required
+@module_access_required("compliance")
+def export_register(register):
+    if register not in _EXPORT_REGISTERS:
+        return err("Unknown register", 404)
+    title, getter = _EXPORT_REGISTERS[register]
+    firm_id = get_firm()
+    firm_name = session.get("firm_name", firm_id)
+    records = getter(firm_id)
+    headers, rows = _export_rows(records, register)
+    fmt = request.args.get("format", "xlsx")
+    today = datetime.now().strftime("%Y-%m-%d")
+    base = f"mickey-{register}-{today}"
+    if fmt == "xlsx":
+        buf = _build_xlsx(title, firm_name, headers, rows)
+        return send_file(buf, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                         as_attachment=True, download_name=f"{base}.xlsx")
+    elif fmt == "docx":
+        buf = _build_docx(title, firm_name, headers, rows)
+        return send_file(buf, mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                         as_attachment=True, download_name=f"{base}.docx")
+    elif fmt == "pdf":
+        buf = _build_pdf(title, firm_name, headers, rows)
+        return send_file(buf, mimetype="application/pdf",
+                         as_attachment=True, download_name=f"{base}.pdf")
+    else:
+        return err("Unknown format. Use docx, xlsx or pdf.", 400)
