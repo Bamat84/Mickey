@@ -872,18 +872,23 @@ def _shade_cell(cell, hex_color):
 
 def _build_docx(title, firm_name, headers, rows):
     from docx import Document
-    from docx.shared import Pt, RGBColor, Cm
+    from docx.shared import Pt, RGBColor, Cm, Twips
+    from docx.enum.section import WD_ORIENT
     today = datetime.now().strftime("%d %B %Y")
     doc = Document()
+    # Landscape orientation for all compliance registers (tables are wide)
     for sec in doc.sections:
-        sec.top_margin = Cm(2); sec.bottom_margin = Cm(2)
-        sec.left_margin = Cm(2.5); sec.right_margin = Cm(2.5)
+        sec.orientation = WD_ORIENT.LANDSCAPE
+        sec.page_width, sec.page_height = sec.page_height, sec.page_width
+        sec.top_margin = Cm(1.8); sec.bottom_margin = Cm(1.8)
+        sec.left_margin = Cm(2); sec.right_margin = Cm(2)
     # Title block
     h = doc.add_heading(firm_name, level=0)
-    h.runs[0].font.size = Pt(22); h.runs[0].font.color.rgb = RGBColor(0x1a, 0x1a, 0x2e)
+    h.runs[0].font.size = Pt(20); h.runs[0].font.color.rgb = RGBColor(0x1a, 0x1a, 0x2e)
     h.paragraph_format.space_after = Pt(3)
     p = doc.add_paragraph(title)
     p.runs[0].font.size = Pt(13); p.runs[0].font.color.rgb = RGBColor(0x2d, 0x6a, 0x4f)
+    p.runs[0].font.bold = True
     p.paragraph_format.space_after = Pt(2)
     m = doc.add_paragraph(f"Exported from Mickey  ·  {today}  ·  {len(rows)} record{'s' if len(rows) != 1 else ''}")
     m.runs[0].font.size = Pt(9); m.runs[0].font.color.rgb = RGBColor(0x99, 0x99, 0x99)
@@ -891,27 +896,39 @@ def _build_docx(title, firm_name, headers, rows):
     if not rows:
         doc.add_paragraph("No records found.")
     else:
-        tbl = doc.add_table(rows=1 + len(rows), cols=len(headers))
+        n = len(headers)
+        tbl = doc.add_table(rows=1 + len(rows), cols=n)
         tbl.style = "Table Grid"
+        # Distribute column widths: landscape A4 usable ≈ 25.7cm
+        usable_cm = 25.7
+        col_w_cm = round(usable_cm / n, 2)
+        for col in tbl.columns:
+            for cell in col.cells:
+                cell.width = Cm(col_w_cm)
         # Header row
         hrow = tbl.rows[0]
         for i, h in enumerate(headers):
             cell = hrow.cells[i]
-            cell.text = h
-            run = cell.paragraphs[0].runs[0] if cell.paragraphs[0].runs else cell.paragraphs[0].add_run(h)
-            run.text = h; run.font.bold = True
-            run.font.size = Pt(8); run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+            cell.text = ""
+            run = cell.paragraphs[0].add_run(h)
+            run.font.bold = True
+            run.font.size = Pt(7.5); run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
             _shade_cell(cell, "2D6A4F")
+            cell.paragraphs[0].paragraph_format.space_before = Pt(2)
+            cell.paragraphs[0].paragraph_format.space_after = Pt(2)
         # Data rows
         for ri, row in enumerate(rows):
             trow = tbl.rows[ri + 1]
+            shade = "F0F4F2" if ri % 2 == 1 else None
             for ci, val in enumerate(row):
                 cell = trow.cells[ci]
-                cell.text = val
-                run = cell.paragraphs[0].runs[0] if cell.paragraphs[0].runs else cell.paragraphs[0].add_run(val)
-                run.text = val; run.font.size = Pt(8)
-                if ri % 2 == 1:
-                    _shade_cell(cell, "F5F5F5")
+                cell.text = ""
+                run = cell.paragraphs[0].add_run(str(val))
+                run.font.size = Pt(7.5)
+                cell.paragraphs[0].paragraph_format.space_before = Pt(1)
+                cell.paragraphs[0].paragraph_format.space_after = Pt(1)
+                if shade:
+                    _shade_cell(cell, shade)
     buf = BytesIO(); doc.save(buf); buf.seek(0)
     return buf
 
@@ -957,12 +974,21 @@ def _build_xlsx(title, firm_name, headers, rows):
 
 def _build_pdf(title, firm_name, headers, rows):
     from fpdf import FPDF
+    from fpdf.fonts import FontFace
     today = datetime.now().strftime("%d %B %Y")
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.set_margins(14, 14, 14)
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=14)
+    pdf.set_auto_page_break(auto=True, margin=18)
     GREEN, DARK, MUTED = (45, 106, 79), (26, 26, 46), (140, 140, 140)
+    GREEN_RGB = (45, 106, 79)
+
+    def _footer():
+        pdf.set_y(-12)
+        pdf.set_font("Helvetica", "", 7)
+        pdf.set_text_color(*MUTED)
+        pdf.cell(0, 5, f"Mickey Legal Intelligence  ·  {firm_name}  ·  Page {pdf.page_no()}", align="C")
+
+    pdf.add_page()
     # Title block
     pdf.set_font("Helvetica", "B", 18); pdf.set_text_color(*DARK)
     pdf.cell(0, 9, firm_name, new_x="LMARGIN", new_y="NEXT")
@@ -971,36 +997,52 @@ def _build_pdf(title, firm_name, headers, rows):
     pdf.set_font("Helvetica", "", 8); pdf.set_text_color(*MUTED)
     pdf.cell(0, 5, f"Exported from Mickey  ·  {today}  ·  {len(rows)} record{'s' if len(rows) != 1 else ''}",
              new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(2)
-    pdf.set_draw_color(*GREEN); pdf.set_line_width(0.5)
+    pdf.ln(3)
+    pdf.set_draw_color(*GREEN_RGB); pdf.set_line_width(0.5)
     pdf.line(pdf.get_x(), pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
-    pdf.ln(4)
+    pdf.ln(5)
+
     if not rows:
         pdf.set_font("Helvetica", "I", 10); pdf.set_text_color(*MUTED)
         pdf.cell(0, 8, "No records found.", new_x="LMARGIN", new_y="NEXT")
     else:
-        usable_w = pdf.w - pdf.l_margin - pdf.r_margin
         n = len(headers)
-        col_w = max(usable_w / n, 18)
-        row_h = 6
-        max_ch = max(int(col_w / 1.8), 8)
-        # Header
-        pdf.set_fill_color(*GREEN); pdf.set_text_color(255, 255, 255)
-        pdf.set_font("Helvetica", "B", 7)
-        for h in headers:
-            pdf.cell(col_w, row_h, h[:max_ch], border=0, fill=True)
-        pdf.ln(row_h)
-        # Rows
-        pdf.set_font("Helvetica", "", 7)
-        for i, row in enumerate(rows):
-            pdf.set_fill_color(245, 245, 245) if i % 2 == 0 else pdf.set_fill_color(255, 255, 255)
-            pdf.set_text_color(*DARK)
-            for val in row:
-                pdf.cell(col_w, row_h, str(val)[:max_ch], border=0, fill=True)
-            pdf.ln(row_h)
-    # Footer
-    pdf.set_y(-12); pdf.set_font("Helvetica", "", 7); pdf.set_text_color(*MUTED)
-    pdf.cell(0, 5, f"Mickey Legal Intelligence  ·  {firm_name}  ·  Page {pdf.page_no()}", align="C")
+        usable_w = pdf.w - pdf.l_margin - pdf.r_margin
+        # Equal column widths, minimum 14mm each
+        base_w = max(usable_w / n, 14)
+        col_widths = tuple(base_w for _ in range(n))
+
+        heading_style = FontFace(
+            emphasis="BOLD",
+            color=(255, 255, 255),
+            fill_color=GREEN_RGB,
+            size_pt=7,
+        )
+        pdf.set_font("Helvetica", size=7)
+        pdf.set_text_color(*DARK)
+
+        with pdf.table(
+            col_widths=col_widths,
+            text_align="LEFT",
+            line_height=4.5,
+            headings_style=heading_style,
+            repeat_headings=1,
+            padding=1.5,
+            borders_layout="NO_HORIZONTAL_LINES",
+            first_row_as_headings=True,
+        ) as table:
+            # Header row
+            hrow = table.row()
+            for h in headers:
+                hrow.cell(h)
+            # Data rows
+            for i, row in enumerate(rows):
+                fill = (240, 244, 242) if i % 2 == 0 else (255, 255, 255)
+                drow = table.row(style=FontFace(fill_color=fill, size_pt=7))
+                for val in row:
+                    drow.cell(str(val) if val else "")
+
+    _footer()
     return BytesIO(pdf.output())
 
 
@@ -1012,7 +1054,8 @@ def export_register(register):
         return err("Unknown register", 404)
     title, getter = _EXPORT_REGISTERS[register]
     firm_id = get_firm()
-    firm_name = session.get("firm_name", firm_id)
+    # entity_name may be passed by frontend after the user picks from Corporate Housekeeping
+    firm_name = request.args.get("entity_name") or session.get("firm_name", firm_id)
     records = getter(firm_id)
     headers, rows = _export_rows(records, register)
     fmt = request.args.get("format", "xlsx")
@@ -1032,3 +1075,214 @@ def export_register(register):
                          as_attachment=True, download_name=f"{base}.pdf")
     else:
         return err("Unknown format. Use docx, xlsx or pdf.", 400)
+
+
+# ── AI Import ──────────────────────────────────────────────────────────────────
+
+def _extract_file_data(file_storage):
+    """Extract (file_headers, file_rows) from an uploaded xlsx or docx file."""
+    name = file_storage.filename.lower()
+    content = file_storage.read()
+
+    if name.endswith(".xlsx"):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        wb = load_workbook(BytesIO(content), read_only=True, data_only=True)
+        ws = wb.active
+        rows_iter = list(ws.iter_rows(values_only=True))
+        if not rows_iter:
+            raise ValueError("The spreadsheet appears to be empty.")
+        # First non-empty row is headers
+        header_row = None
+        data_start = 0
+        for i, row in enumerate(rows_iter):
+            if any(c for c in row if c is not None and str(c).strip()):
+                header_row = [str(c).strip() if c is not None else "" for c in row]
+                data_start = i + 1
+                break
+        if not header_row:
+            raise ValueError("Could not find a header row in the spreadsheet.")
+        file_rows = []
+        for row in rows_iter[data_start:]:
+            if any(c for c in row if c is not None and str(c).strip()):
+                file_rows.append([str(c).strip() if c is not None else "" for c in row])
+        return header_row, file_rows
+
+    elif name.endswith(".docx"):
+        from docx import Document
+        from io import BytesIO
+        doc = Document(BytesIO(content))
+        if not doc.tables:
+            raise ValueError("No tables found in the Word document.")
+        tbl = doc.tables[0]
+        all_rows = [[cell.text.strip() for cell in row.cells] for row in tbl.rows]
+        if not all_rows:
+            raise ValueError("The table in the document is empty.")
+        header_row = all_rows[0]
+        file_rows = [r for r in all_rows[1:] if any(c for c in r if c)]
+        return header_row, file_rows
+
+    else:
+        raise ValueError("Unsupported file type. Please upload .xlsx or .docx.")
+
+
+def _call_claude_for_mapping(register, register_fields, file_headers, sample_rows):
+    """Use Claude to map file_headers → register field keys. Returns dict {file_header: field_key or None}."""
+    import sys, os
+    sys.path.insert(0, "/opt/mickey")
+    import server as srv
+    client = srv.get_client()
+
+    field_list = "\n".join(f"  - {fk}: {fl}" for fk, fl in register_fields)
+    sample_text = "\n".join(
+        "  | " + " | ".join(str(v)[:60] for v in row) + " |"
+        for row in sample_rows[:5]
+    )
+    prompt = f"""You are a compliance data import assistant.
+
+The user is importing data into the **{register}** register.
+
+Expected fields (field_key: display_label):
+{field_list}
+
+The uploaded file has these column headers:
+{json.dumps(file_headers, indent=2)}
+
+Sample data rows (first 5):
+{sample_text}
+
+Task: Map each file column header to the best matching register field key.
+Rules:
+- Match semantically even if names differ (e.g. "Employee" → "employee_name", "Company" → "company_name").
+- If a file column clearly doesn't match any field, map it to null.
+- Each register field should be mapped at most once (pick the best match).
+- Return ONLY a JSON object mapping file_header → field_key (or null).
+- Do not include any explanation.
+
+Example output:
+{{"Employee Name": "employee_name", "Date": "gift_date", "Internal Notes": null}}"""
+
+    msg = client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=1000,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    raw = msg.content[0].text.strip()
+    # Strip markdown code fences if present
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    return json.loads(raw.strip())
+
+
+@compliance_bp.route("/api/compliance/import/<register>", methods=["POST"])
+@login_required
+@module_access_required("compliance")
+@editor_required
+def import_register(register):
+    if register not in _EXPORT_REGISTERS:
+        return err("Unknown register", 404)
+
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return err("No file uploaded.")
+
+    ext = file.filename.rsplit(".", 1)[-1].lower()
+    if ext not in ("xlsx", "docx"):
+        return err("Only .xlsx and .docx files are supported.")
+
+    if file.content_length and file.content_length > 20 * 1024 * 1024:
+        return err("File too large. Maximum 20 MB.")
+
+    try:
+        file_headers, file_rows = _extract_file_data(file)
+    except ValueError as e:
+        return err(str(e))
+    except Exception as e:
+        return err(f"Could not read file: {e}")
+
+    if not file_headers:
+        return err("No column headers found in the file.")
+    if not file_rows:
+        return err("No data rows found in the file.")
+
+    # Get the register's expected fields
+    register_fields = _REGISTER_COLS.get(register, [])
+    if not register_fields:
+        return err("Column schema not defined for this register.")
+
+    # Call Claude to map columns
+    try:
+        mapping = _call_claude_for_mapping(register, register_fields, file_headers, file_rows[:5])
+    except Exception as e:
+        return err(f"AI mapping failed: {e}")
+
+    if not isinstance(mapping, dict):
+        return err("AI returned an unexpected response. Please try again.")
+
+    # Build mapped records
+    field_keys = [fk for fk, _ in register_fields]
+    mapped_records = []
+    mapped_columns = []  # file headers that were mapped
+    skipped_columns = []
+
+    for fh in file_headers:
+        field_key = mapping.get(fh)
+        if field_key and field_key in field_keys:
+            mapped_columns.append((fh, field_key))
+        else:
+            skipped_columns.append(fh)
+
+    if not mapped_columns:
+        return err("No columns could be mapped to the register fields. Please check your file.")
+
+    for row in file_rows:
+        row_dict = dict(zip(file_headers, row))
+        record = {}
+        for fh, fk in mapped_columns:
+            record[fk] = row_dict.get(fh, "")
+        mapped_records.append(record)
+
+    # Build preview: use display labels for mapped field keys
+    field_label = {fk: fl for fk, fl in register_fields}
+    preview_headers = [field_label.get(fk, fk) for _, fk in mapped_columns]
+    preview_rows = [
+        [rec.get(fk, "") for _, fk in mapped_columns]
+        for rec in mapped_records[:10]
+    ]
+
+    return jsonify({
+        "ok": True,
+        "records": mapped_records,
+        "mappings": [{"file_column": fh, "field_key": fk, "field_label": field_label.get(fk, fk)} for fh, fk in mapped_columns],
+        "skipped_columns": skipped_columns,
+        "preview_headers": preview_headers,
+        "preview_rows": preview_rows,
+    })
+
+
+@compliance_bp.route("/api/compliance/import/<register>/confirm", methods=["POST"])
+@login_required
+@module_access_required("compliance")
+@editor_required
+def import_register_confirm(register):
+    if register not in _EXPORT_REGISTERS:
+        return err("Unknown register", 404)
+
+    data = request.get_json(silent=True) or {}
+    records = data.get("records", [])
+    if not records:
+        return err("No records to import.")
+    if not isinstance(records, list):
+        return err("Invalid records payload.")
+
+    firm_id = get_firm()
+    try:
+        count = cd.bulk_import(firm_id, register, records)
+    except ValueError as e:
+        return err(str(e))
+    except Exception as e:
+        return err(f"Import failed: {e}")
+
+    return jsonify({"ok": True, "imported": count})

@@ -2512,34 +2512,34 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
               <div style="padding:14px 22px;overflow-y:auto;flex:1;" id="dpo-content"><div class="empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><h3>No DPO record</h3><p>Add your Data Protection Officer details to get started.</p><button class="btn btn-primary editor-only" style="margin-top:12px;" onclick="openModal('modal-dpo')">Add DPO record</button></div></div>
             </div>
             <div class="view" id="view-gdpr-ropa">
-              <div class="topbar"><div class="topbar-left"><h1>Record of Processing Activities</h1><p>Art. 30 GDPR · Controller (Art. 30(1)) and processor (Art. 30(2)) records</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('ropa','docx')">Word (.docx)</button><button onclick="dlExport('ropa','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('ropa','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-ropa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add activity</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Record of Processing Activities</h1><p>Art. 30 GDPR · Controller (Art. 30(1)) and processor (Art. 30(2)) records</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('ropa','docx')">Word (.docx)</button><button onclick="dlExport('ropa','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('ropa','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('ropa')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-ropa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add activity</button></div></div>
               <div class="rag-strip" id="ropa-rag"></div>
               <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search activities…" oninput="filterTable('ropa-table',this.value)"></div><span class="chip active" onclick="filterChip(this,'ropa-table','','role')">All</span><span class="chip" onclick="filterChip(this,'ropa-table','controller','role')">Controller</span><span class="chip" onclick="filterChip(this,'ropa-table','processor','role')">Processor</span></div>
               <div class="section"><div class="table-wrap"><table id="ropa-table"><thead><tr><th style="width:26%">Processing activity</th><th>Role</th><th>Legal basis</th><th>Data categories</th><th>Retention</th><th>Review due</th><th>Status</th><th></th></tr></thead><tbody id="ropa-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No activities recorded yet.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-dsr">
-              <div class="topbar"><div class="topbar-left"><h1>Data Subject Requests</h1><p>Art. 15–22 GDPR · 1 calendar month deadline</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dsrs','docx')">Word (.docx)</button><button onclick="dlExport('dsrs','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dsrs','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-dsr')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log DSR</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Data Subject Requests</h1><p>Art. 15–22 GDPR · 1 calendar month deadline</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dsrs','docx')">Word (.docx)</button><button onclick="dlExport('dsrs','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dsrs','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('dsrs')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-dsr')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log DSR</button></div></div>
               <div class="rag-strip" id="dsr-rag"></div>
               <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search requests…" oninput="filterTable('dsr-table',this.value)"></div><span class="chip active" onclick="filterChip(this,'dsr-table','','status')">Open</span><span class="chip" onclick="filterChip(this,'dsr-table','closed','status')">Closed</span><span class="chip" onclick="filterChip(this,'dsr-table','controller','role')">Controller</span><span class="chip" onclick="filterChip(this,'dsr-table','processor','role')">Processor</span></div>
               <div class="section"><div id="dsr-alerts"></div><div class="table-wrap"><table id="dsr-table"><thead><tr><th>Requester</th><th>Right</th><th>Role</th><th>Received</th><th>Deadline</th><th>Days left</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dsr-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No DSRs recorded yet.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-breach">
-              <div class="topbar"><div class="topbar-left"><h1>Data Breaches</h1><p>Art. 33–34 GDPR · 72-hour SA notification clock from detection</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('breaches','docx')">Word (.docx)</button><button onclick="dlExport('breaches','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('breaches','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-breach')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log breach</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Data Breaches</h1><p>Art. 33–34 GDPR · 72-hour SA notification clock from detection</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('breaches','docx')">Word (.docx)</button><button onclick="dlExport('breaches','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('breaches','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('breaches')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-breach')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log breach</button></div></div>
               <div class="rag-strip" id="breach-rag"></div>
               <div class="section" style="padding-top:8px;"><div id="breach-alerts"></div><div class="table-wrap"><table><thead><tr><th>Ref</th><th style="width:28%">Description</th><th>Type</th><th>Detected</th><th>72h deadline</th><th>Risk</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="breach-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No breaches recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-dpia">
-              <div class="topbar"><div class="topbar-left"><h1>Data Protection Impact Assessments</h1><p>Art. 35 GDPR · 7-stage workflow · DPO consultation mandatory</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dpias','docx')">Word (.docx)</button><button onclick="dlExport('dpias','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dpias','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-dpia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Start DPIA</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Data Protection Impact Assessments</h1><p>Art. 35 GDPR · 7-stage workflow · DPO consultation mandatory</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dpias','docx')">Word (.docx)</button><button onclick="dlExport('dpias','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dpias','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('dpias')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-dpia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Start DPIA</button></div></div>
               <div class="rag-strip" id="dpia-rag"></div>
               <div class="section"><div class="table-wrap"><table><thead><tr><th style="width:28%">Processing activity</th><th>Stage</th><th>Role</th><th>DPO consulted</th><th>Risk level</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dpia-tbody"><tr><td colspan="7"><div class="empty" style="padding:30px"><p>No DPIAs started.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-tia">
-              <div class="topbar"><div class="topbar-left"><h1>Transfer Impact Assessments</h1><p>Art. 44+ GDPR · Post-Schrems II · One TIA per exporter–importer–country combination</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('tias','docx')">Word (.docx)</button><button onclick="dlExport('tias','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('tias','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-tia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New TIA</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Transfer Impact Assessments</h1><p>Art. 44+ GDPR · Post-Schrems II · One TIA per exporter–importer–country combination</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('tias','docx')">Word (.docx)</button><button onclick="dlExport('tias','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('tias','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('tias')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-tia')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New TIA</button></div></div>
               <div class="rag-strip" id="tia-rag"></div>
               <div class="section"><div class="table-wrap"><table><thead><tr><th>Importer</th><th>Country</th><th>Mechanism</th><th>Risk</th><th>Reassess by</th><th>DPA linked</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="tia-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No TIAs recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-dpa">
-              <div class="topbar"><div class="topbar-left"><h1>Data Processing Agreements</h1><p>Art. 28 GDPR · Agreements with processors and controllers</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dpas','docx')">Word (.docx)</button><button onclick="dlExport('dpas','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dpas','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-dpa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add DPA</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Data Processing Agreements</h1><p>Art. 28 GDPR · Agreements with processors and controllers</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('dpas','docx')">Word (.docx)</button><button onclick="dlExport('dpas','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('dpas','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('dpas')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-dpa')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add DPA</button></div></div>
               <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th style="width:25%">Counterparty</th><th>Our role</th><th>Purpose</th><th>TIA linked</th><th>Signed</th><th>Review</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="dpa-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No DPAs recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-gdpr-gdpr-policies">
@@ -2568,27 +2568,27 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
           </div>
           <div class="content" id="abc-content">
             <div class="view active" id="view-abc-gifts">
-              <div class="topbar"><div class="topbar-left"><h1>Gifts &amp; Hospitality</h1><p>All gifts and entertainment must be logged · Pre-clearance above policy threshold</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('gifts','docx')">Word (.docx)</button><button onclick="dlExport('gifts','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('gifts','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-gift')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log gift</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Gifts &amp; Hospitality</h1><p>All gifts and entertainment must be logged · Pre-clearance above policy threshold</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('gifts','docx')">Word (.docx)</button><button onclick="dlExport('gifts','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('gifts','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('gifts')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-gift')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log gift</button></div></div>
               <div class="rag-strip" id="gifts-rag"></div>
               <div class="filter-bar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search…" oninput="filterTable('gifts-table',this.value)"></div><span class="chip active">All</span><span class="chip" onclick="filterChip(this,'gifts-table','received','direction')">Received</span><span class="chip" onclick="filterChip(this,'gifts-table','given','direction')">Given</span><span class="chip" onclick="filterChip(this,'gifts-table','pending','status')">Pending</span></div>
               <div class="section"><div class="table-wrap"><table id="gifts-table"><thead><tr><th>Employee</th><th>Direction</th><th>Type</th><th>Third party</th><th>Country</th><th>Value</th><th>Date</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="gifts-tbody"><tr><td colspan="9"><div class="empty" style="padding:30px"><p>No gifts recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-abc-coi">
-              <div class="topbar"><div class="topbar-left"><h1>Conflicts of Interest</h1><p>Annual declaration · All employees and board members</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('coi','docx')">Word (.docx)</button><button onclick="dlExport('coi','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('coi','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" id="btn-send-coi-reminders">Send reminders</button><button class="btn btn-primary editor-only" onclick="openModal('modal-coi')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log declaration</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Conflicts of Interest</h1><p>Annual declaration · All employees and board members</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('coi','docx')">Word (.docx)</button><button onclick="dlExport('coi','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('coi','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" id="btn-send-coi-reminders">Send reminders</button><button class="btn btn-secondary editor-only" onclick="openImport('coi')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-coi')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log declaration</button></div></div>
               <div class="rag-strip" id="coi-rag"></div>
               <div class="section"><div id="coi-alerts"></div><div class="table-wrap"><table><thead><tr><th style="width:22%">Person</th><th>Category</th><th>Year</th><th>Declaration date</th><th>Conflict</th><th>Approved by</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="coi-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No COI declarations recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-abc-tpdd">
-              <div class="topbar"><div class="topbar-left"><h1>Third-Party Due Diligence</h1><p>Agents, intermediaries, JV partners, high-risk suppliers · Country risk auto-detected</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('tpdd','docx')">Word (.docx)</button><button onclick="dlExport('tpdd','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('tpdd','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-tpdd')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add third party</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Third-Party Due Diligence</h1><p>Agents, intermediaries, JV partners, high-risk suppliers · Country risk auto-detected</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('tpdd','docx')">Word (.docx)</button><button onclick="dlExport('tpdd','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('tpdd','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('tpdd')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-tpdd')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add third party</button></div></div>
               <div class="rag-strip" id="tpdd-rag"></div>
               <div class="section"><div class="table-wrap"><table><thead><tr><th style="width:22%">Company</th><th>Type</th><th>Country</th><th>DD level</th><th>Last DD</th><th>Next review</th><th>Country risk</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="tpdd-tbody"><tr><td colspan="9"><div class="empty" style="padding:30px"><p>No third parties recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-abc-donations">
-              <div class="topbar"><div class="topbar-left"><h1>Political Donations &amp; Sponsorships</h1><p>Corporate donations, sponsorships, charitable contributions · Board approval required</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('donations','docx')">Word (.docx)</button><button onclick="dlExport('donations','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('donations','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-donation')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log donation</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Political Donations &amp; Sponsorships</h1><p>Corporate donations, sponsorships, charitable contributions · Board approval required</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('donations','docx')">Word (.docx)</button><button onclick="dlExport('donations','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('donations','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('donations')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-donation')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log donation</button></div></div>
               <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th>Recipient</th><th>Type</th><th>Amount</th><th>Date</th><th>Jurisdiction</th><th>Board approval</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="donations-tbody"><tr><td colspan="8"><div class="empty" style="padding:30px"><p>No donations recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-abc-flags">
-              <div class="topbar"><div class="topbar-left"><h1>Red Flag Log</h1><p>Internal record for legal review · Restricted to editors and admin</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('flags','docx')">Word (.docx)</button><button onclick="dlExport('flags','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('flags','pdf')">PDF</button></div></div><button class="btn btn-primary editor-only" onclick="openModal('modal-flag')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log concern</button></div></div>
+              <div class="topbar"><div class="topbar-left"><h1>Red Flag Log</h1><p>Internal record for legal review · Restricted to editors and admin</p></div><div class="topbar-actions"><div class="export-menu-wrap"><button class="btn btn-secondary" onclick="toggleExportMenu(this)"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button><div class="export-dd"><button onclick="dlExport('flags','docx')">Word (.docx)</button><button onclick="dlExport('flags','xlsx')">Excel (.xlsx)</button><button onclick="dlExport('flags','pdf')">PDF</button></div></div><button class="btn btn-secondary editor-only" onclick="openImport('flags')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn btn-primary editor-only" onclick="openModal('modal-flag')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log concern</button></div></div>
               <div class="section" style="padding-top:14px;"><div class="table-wrap"><table><thead><tr><th>Date</th><th style="width:30%">Description</th><th>Related party</th><th>Country</th><th>Severity</th><th>Status</th><th class="editor-only"></th></tr></thead><tbody id="flags-tbody"><tr><td colspan="7"><div class="empty" style="padding:30px"><p>No red flags recorded.</p></div></td></tr></tbody></table></div></div>
             </div>
             <div class="view" id="view-abc-abc-policies">
@@ -3128,6 +3128,66 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
   </div>
 </div>
 
+<!-- ENTITY PICKER MODAL (for export firm name) -->
+<div class="overlay" id="modal-entity-picker">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title">Select legal entity</div>
+    <div class="modal-sub">Choose which entity this register belongs to. The name will appear on the exported document.</div>
+    <div class="form-group">
+      <label>Legal entity</label>
+      <select class="form-control" id="entity-picker-select"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-entity-picker')">Cancel</button>
+      <button class="btn btn-primary" onclick="doExportWithEntity()">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- AI IMPORT MODAL -->
+<div class="overlay" id="modal-import">
+  <div class="modal modal-wide" style="width:700px;max-width:96vw;">
+    <div class="modal-title">Import register — AI column mapping</div>
+    <div class="modal-sub">Upload an existing Excel or Word register. Mickey will read the file and map the columns to the correct fields, even if the names differ. Review the preview before confirming.</div>
+    <!-- Step 1: upload -->
+    <div id="import-step-upload">
+      <div id="import-drop-zone" style="border:2px dashed var(--cream-dark);border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:border-color .2s;" onclick="document.getElementById('import-file-input').click()" ondragover="event.preventDefault();this.style.borderColor='var(--green)'" ondragleave="this.style.borderColor='var(--cream-dark)'" ondrop="importHandleDrop(event)">
+        <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--text-faint);stroke-width:1.5;fill:none;margin-bottom:8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div style="font-size:13px;color:var(--text-mid);margin-bottom:4px;">Drop file here or click to browse</div>
+        <div style="font-size:11px;color:var(--text-faint);">Excel (.xlsx) or Word (.docx) · max 20 MB</div>
+      </div>
+      <input type="file" id="import-file-input" accept=".xlsx,.docx" style="display:none;" onchange="importFileSelected(this)">
+      <div id="import-file-name" style="margin-top:10px;font-size:12px;color:var(--text-muted);text-align:center;"></div>
+    </div>
+    <!-- Step 2: loading -->
+    <div id="import-step-loading" style="display:none;text-align:center;padding:32px 0;">
+      <div class="thinking-dots" style="justify-content:center;margin-bottom:12px;"><span></span><span></span><span></span></div>
+      <div style="font-size:13px;color:var(--text-mid);">Mickey is reading the file and mapping columns…</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:4px;">This takes a few seconds</div>
+    </div>
+    <!-- Step 3: preview -->
+    <div id="import-step-preview" style="display:none;">
+      <div id="import-mapping-info" style="font-size:12px;color:var(--text-mid);margin-bottom:12px;padding:10px 12px;background:var(--cream);border-radius:var(--r);"></div>
+      <div style="overflow-x:auto;max-height:300px;border:1px solid var(--cream-dark);border-radius:var(--r);">
+        <table id="import-preview-table" style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead id="import-preview-head" style="position:sticky;top:0;background:var(--green);color:#fff;"></thead>
+          <tbody id="import-preview-body"></tbody>
+        </table>
+      </div>
+      <div id="import-skipped-note" style="font-size:11px;color:var(--text-faint);margin-top:8px;"></div>
+    </div>
+    <!-- Step 4: error -->
+    <div id="import-step-error" style="display:none;padding:20px;text-align:center;">
+      <div style="color:var(--red);font-size:13px;" id="import-error-msg"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="importReset()">Cancel</button>
+      <button class="btn btn-primary" id="import-upload-btn" onclick="importUpload()">Analyse file</button>
+      <button class="btn btn-primary" id="import-confirm-btn" style="display:none;" onclick="importConfirm()">Import <span id="import-count"></span> records</button>
+    </div>
+  </div>
+</div>
+
       <!-- INFO & SETTINGS (merged: admin + info/legal + settings + storage) -->
       <div class="module" id="mod-settings">
         <div style="font-family:var(--font-serif);font-size:22px;font-weight:400;margin-bottom:4px;">Info &amp; Settings</div>
@@ -3297,6 +3357,11 @@ function showApp(name,admin){
     if(icon)icon.innerHTML='<path d="M9 18l6-6-6-6"/>';
   }
   document.getElementById('radar-badge').style.display='flex';
+  // Restore last visited page
+  try{
+    const lastPage=localStorage.getItem('mickey-page');
+    if(lastPage&&lastPage!=='dashboard')go(lastPage);
+  }catch(e){}
 }
 
 function loadDashStats(){
@@ -3359,7 +3424,8 @@ function go(id,el){
   if(id==='storage')loadStorage();
   if(id==='vault')chLoadOnVaultOpen();
   if(id==='compliance'){compInit();}
-
+  // Persist page across reloads
+  try{localStorage.setItem('mickey-page',id);}catch(e){}
 }
 
 function switchSettingsTab(btn,tab){
@@ -5227,6 +5293,13 @@ async function compInit() {
     }
   } catch(e) {}
   applyRoleVisibility();
+  // Restore previously visited compliance module/view
+  try{
+    const savedMod=localStorage.getItem('mickey-comp-module');
+    if(savedMod)STATE.currentModule=savedMod;
+    const savedViews=localStorage.getItem('mickey-comp-view');
+    if(savedViews)Object.assign(STATE.currentView,JSON.parse(savedViews));
+  }catch(e){}
   setModule(STATE.currentModule || 'gdpr');
   loadDashboardBadges();
 }
@@ -5264,6 +5337,8 @@ function setModule(m) {
   if (v) setView(m, v);
   // Load data for this module
   loadModuleData(m);
+  // Persist compliance module selection
+  try{localStorage.setItem('mickey-comp-module',m);}catch(e){}
 }
 
 function setView(module, view) {
@@ -5274,6 +5349,8 @@ function setView(module, view) {
   content.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   const target = document.getElementById('view-' + module + '-' + view);
   if (target) target.classList.add('active');
+  // Persist compliance view selection
+  try{localStorage.setItem('mickey-comp-view',JSON.stringify(STATE.currentView));}catch(e){}
   // Update sub-nav active state
   const modEl = document.getElementById('module-' + module);
   if (modEl) {
@@ -6101,12 +6178,160 @@ document.addEventListener('click', function(e) {
   if (!e.target.closest('.export-menu-wrap'))
     document.querySelectorAll('.export-dd').forEach(d => d.style.display = 'none');
 });
-function dlExport(register, format) {
+
+let _pendingExport = null; // { register, format }
+
+async function dlExport(register, format) {
   document.querySelectorAll('.export-dd').forEach(d => d.style.display = 'none');
-  window.location.href = `/api/compliance/export/${register}?format=${format}`;
+  // Fetch legal entities from Corporate Housekeeping
+  try {
+    const r = await fetch('/api/corp/entities');
+    const d = await r.json();
+    const entities = Array.isArray(d) ? d : (d.entities || d.data || []);
+    if (entities.length === 0) {
+      // No entities — export with session firm name
+      window.location.href = `/api/compliance/export/${register}?format=${format}`;
+    } else if (entities.length === 1) {
+      // One entity — use it directly
+      const name = encodeURIComponent(entities[0].name || entities[0].legal_name || '');
+      window.location.href = `/api/compliance/export/${register}?format=${format}&entity_name=${name}`;
+    } else {
+      // Multiple entities — show picker
+      _pendingExport = { register, format };
+      const sel = document.getElementById('entity-picker-select');
+      sel.innerHTML = entities.map(e => `<option value="${esc(e.name||e.legal_name||'')}">${esc(e.name||e.legal_name||'')}${e.legal_form?' — '+esc(e.legal_form):''}</option>`).join('');
+      openModal('modal-entity-picker');
+    }
+  } catch(err) {
+    // On any error fall back to session firm name
+    window.location.href = `/api/compliance/export/${register}?format=${format}`;
+  }
 }
+
+function doExportWithEntity() {
+  if (!_pendingExport) return;
+  const name = document.getElementById('entity-picker-select').value;
+  closeModal('modal-entity-picker');
+  window.location.href = `/api/compliance/export/${_pendingExport.register}?format=${_pendingExport.format}&entity_name=${encodeURIComponent(name)}`;
+  _pendingExport = null;
+}
+
 function exportRegister(type, format) { dlExport(type, format || 'xlsx'); }
 function exportAudit(module) { dlExport(module, 'xlsx'); }
+
+// ── AI Import ─────────────────────────────────────────────────────────────
+let _importRegister = null;
+let _importMappedData = null;
+
+function openImport(register) {
+  _importRegister = register;
+  _importMappedData = null;
+  importReset();
+  openModal('modal-import');
+}
+
+function importReset() {
+  _importMappedData = null;
+  document.getElementById('import-step-upload').style.display = '';
+  document.getElementById('import-step-loading').style.display = 'none';
+  document.getElementById('import-step-preview').style.display = 'none';
+  document.getElementById('import-step-error').style.display = 'none';
+  document.getElementById('import-upload-btn').style.display = '';
+  document.getElementById('import-confirm-btn').style.display = 'none';
+  document.getElementById('import-file-name').textContent = '';
+  document.getElementById('import-file-input').value = '';
+  if (!_importRegister) closeModal('modal-import');
+}
+
+function importHandleDrop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = 'var(--cream-dark)';
+  const file = e.dataTransfer.files[0];
+  if (file) { document.getElementById('import-file-input').files = e.dataTransfer.files; importFileSelected({files:[file]}); }
+}
+
+function importFileSelected(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  document.getElementById('import-file-name').textContent = file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+}
+
+async function importUpload() {
+  const fileInput = document.getElementById('import-file-input');
+  const file = fileInput.files && fileInput.files[0];
+  if (!file) { toast('Please select a file first', true); return; }
+  const allowed = ['.xlsx','.docx'];
+  if (!allowed.some(ext => file.name.toLowerCase().endsWith(ext))) {
+    toast('Only .xlsx and .docx files are supported', true); return;
+  }
+  document.getElementById('import-step-upload').style.display = 'none';
+  document.getElementById('import-step-loading').style.display = '';
+  document.getElementById('import-upload-btn').style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const r = await fetch(`/api/compliance/import/${_importRegister}`, { method: 'POST', body: formData });
+    const d = await r.json();
+    document.getElementById('import-step-loading').style.display = 'none';
+    if (!r.ok || d.error) {
+      document.getElementById('import-step-error').style.display = '';
+      document.getElementById('import-error-msg').textContent = d.error || 'Something went wrong. Please try a different file.';
+      document.getElementById('import-upload-btn').style.display = '';
+      return;
+    }
+    _importMappedData = d.records;
+    const mappings = d.mappings || [];
+    const skipped = d.skipped_columns || [];
+    // Show mapping info
+    document.getElementById('import-mapping-info').innerHTML =
+      `<strong>${d.records.length}</strong> record${d.records.length!==1?'s':''} found · ` +
+      `<strong>${mappings.length}</strong> column${mappings.length!==1?'s':''} mapped` +
+      (skipped.length ? ` · <span style="color:var(--amber)">${skipped.length} column${skipped.length!==1?'s':''} skipped (no match found)</span>` : '');
+    // Build preview table
+    const headers = d.preview_headers || [];
+    const rows = d.preview_rows || [];
+    document.getElementById('import-preview-head').innerHTML = '<tr>' + headers.map(h=>`<th style="padding:6px 10px;font-weight:600;font-size:10px;white-space:nowrap;">${esc(h)}</th>`).join('') + '</tr>';
+    document.getElementById('import-preview-body').innerHTML = rows.map((row,i)=>
+      `<tr style="background:${i%2===0?'var(--cream)':'#fff'}">${row.map(v=>`<td style="padding:5px 10px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(v)}">${esc(v)}</td>`).join('')}</tr>`
+    ).join('');
+    if (skipped.length) {
+      document.getElementById('import-skipped-note').textContent = 'Skipped columns: ' + skipped.join(', ');
+    }
+    document.getElementById('import-count').textContent = d.records.length;
+    document.getElementById('import-step-preview').style.display = '';
+    document.getElementById('import-confirm-btn').style.display = '';
+  } catch(err) {
+    document.getElementById('import-step-loading').style.display = 'none';
+    document.getElementById('import-step-error').style.display = '';
+    document.getElementById('import-error-msg').textContent = 'Network error — please try again.';
+    document.getElementById('import-upload-btn').style.display = '';
+  }
+}
+
+async function importConfirm() {
+  if (!_importMappedData || !_importRegister) return;
+  document.getElementById('import-confirm-btn').disabled = true;
+  document.getElementById('import-confirm-btn').textContent = 'Importing…';
+  try {
+    const r = await fetch(`/api/compliance/import/${_importRegister}/confirm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ records: _importMappedData })
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) { toast(d.error || 'Import failed', true); }
+    else {
+      closeModal('modal-import');
+      toast(`${d.imported} record${d.imported!==1?'s':''} imported successfully`, false, true);
+      // Reload the relevant module data
+      loadModuleData(STATE.currentModule);
+    }
+  } catch(e) { toast('Network error during import', true); }
+  document.getElementById('import-confirm-btn').disabled = false;
+  document.getElementById('import-confirm-btn').textContent = 'Import ' + (_importMappedData?.length||0) + ' records';
+}
 
 // ── Utilities ─────────────────────────────────────────────────────────────
 // (defined in main app)

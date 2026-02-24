@@ -706,3 +706,32 @@ def save_compliance_settings(firm_id, data):
     data["updated_at"] = _now()
     _write_single(firm_id, "compliance_settings", data)
     return data
+
+
+# ── Bulk import ────────────────────────────────────────────────────────────────
+
+# Maps register name → file prefix for IDs
+_REGISTER_PREFIX = {
+    "ropa": "ropa_", "dsrs": "dsr_", "breaches": "breach_", "dpias": "dpia_",
+    "tias": "tia_", "dpas": "dpa_", "gifts": "gift_", "coi": "coi_",
+    "tpdd": "tpdd_", "donations": "don_", "flags": "flag_", "wb": "wb_",
+}
+
+def bulk_import(firm_id, register, records):
+    """Append a list of pre-mapped records to a register. Returns count saved."""
+    if register not in _REGISTER_PREFIX:
+        raise ValueError(f"Unknown register: {register}")
+    prefix = _REGISTER_PREFIX[register]
+    existing = _read(firm_id, register)
+    for rec in records:
+        rec["id"] = _new_id(prefix)
+        rec["firm_id"] = firm_id
+        rec["created_at"] = _now()
+        rec["updated_at"] = _now()
+        # Remove any internal/computed fields from the import payload
+        for k in list(rec.keys()):
+            if k.startswith("_"):
+                del rec[k]
+        existing.append(rec)
+    _write(firm_id, register, existing)
+    return len(records)
