@@ -151,9 +151,9 @@ html,body{height:100%;font-family:var(--font-sans);background:var(--cream);color
 .thinking-dots span{width:5px;height:5px;border-radius:50%;background:var(--cream-dark);animation:thinking 1.2s infinite;}
 .thinking-dots span:nth-child(2){animation-delay:.2s;}.thinking-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes thinking{0%,60%,100%{opacity:.3;transform:scale(.8)}30%{opacity:1;transform:scale(1)}}
-.md h1{font-family:var(--font-serif);font-size:20px;font-weight:500;margin:14px 0 6px;}
-.md h2{font-family:var(--font-serif);font-size:17px;font-weight:500;margin:12px 0 5px;}
-.md h3{font-family:var(--font-serif);font-size:15px;font-weight:500;margin:10px 0 4px;}
+.md h1{font-family:var(--font-sans);font-size:13.5px;font-weight:700;margin:14px 0 5px;color:var(--text);}
+.md h2{font-family:var(--font-sans);font-size:13px;font-weight:600;margin:12px 0 4px;color:var(--text);}
+.md h3{font-family:var(--font-sans);font-size:12.5px;font-weight:600;margin:10px 0 3px;color:var(--text-mid);}
 .md p{margin:4px 0;}.md ul{margin:4px 0 4px 18px;}.md li{margin:2px 0;}
 .md strong{font-weight:600;}.md em{font-style:italic;}
 .md .finding{display:flex;gap:8px;margin:5px 0;align-items:flex-start;}
@@ -1078,12 +1078,6 @@ tbody td{padding:9px 13px;font-size:12px;color:var(--text);vertical-align:middle
     </button>
 
     <div class="sb-bottom">
-      <div class="sb-bottom-inner">
-        <div class="kb-label">Knowledge base</div>
-        <div class="kb-row"><div class="kb-dot" style="background:#7aa0f0"></div><span class="kb-text">Legal Library</span><span class="kb-num" id="kb-library">0</span></div>
-        <div class="kb-row"><div class="kb-dot" style="background:var(--green)"></div><span class="kb-text">My Workspace</span><span class="kb-num" id="kb-workspace">0</span></div>
-        <div class="kb-row"><div class="kb-dot" style="background:#C8A030"></div><span class="kb-text">Drive files</span><span class="kb-num" id="kb-drive">0</span></div>
-      </div>
       <div class="signout-btn" onclick="doSignout()">
         <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sign out
@@ -3427,7 +3421,7 @@ async function radarCustom(){
   const r=await fetch('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q,history:[],web_search:useWeb})});
   const d=await r.json();
   if(d.error){box.innerHTML=`<span style="color:var(--red)">${esc(d.error)}</span>`;box.classList.add('empty');}
-  else{box.innerHTML=md(d.answer)+'<div style="margin-top:10px"><button class="btn btn-sm" style="font-size:9.5px" onclick="openSaveModal(document.getElementById(\'radar-result\').innerText,\'Legal Radar Answer\',\'radar\')">&#9733; Save to collection</button></div>';box.classList.remove('empty');}
+  else{box.innerHTML='<div class="md" style="font-family:var(--font-sans);font-size:13px;line-height:1.65;">'+md(d.answer)+'</div><div style="margin-top:10px"><button class="btn btn-sm" style="font-size:9.5px" onclick="openSaveModal(document.getElementById(\'radar-result\').innerText,\'Legal Radar Answer\',\'radar\')">&#9733; Save to collection</button></div>';box.classList.remove('empty');}
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -5201,6 +5195,8 @@ function toast(msg,error=false,success=false){const el=document.getElementById('
 init();
 
 // ── COMPLIANCE MODULE ──────────────────────────────────────
+// Shorthand: get trimmed value of a form field by id
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
 // ── Compliance Module State ────────────────────────────────────────────────
 const STATE = {
   role: '',
@@ -5420,7 +5416,7 @@ async function saveRopa() {
   if (!d.activity_name) { toast('Activity name required','err'); return; }
   try {
     await api('POST','/api/compliance/ropa',d);
-    closeModal('modal-ropa'); resetForm('modal-ropa'); toast('Activity saved','ok'); loadRopa();
+    closeModal('modal-ropa'); resetForm('modal-ropa'); toast('Activity saved',false,true); loadRopa();
   } catch(e) { toast(e.message,'err'); }
 }
 
@@ -5478,7 +5474,7 @@ async function saveDsr() {
   if (!d.requester_name||!d.right||!d.received_date) { toast('Requester, right and date required','err'); return; }
   try {
     await api('POST','/api/compliance/dsrs',d);
-    closeModal('modal-dsr'); resetForm('modal-dsr'); toast('DSR logged','ok'); loadDsrs();
+    closeModal('modal-dsr'); resetForm('modal-dsr'); toast('DSR logged',false,true); loadDsrs();
   } catch(e) { toast(e.message,'err'); }
 }
 
@@ -5486,7 +5482,7 @@ async function closeDsr(id, e) {
   e.stopPropagation();
   const outcome = prompt('Brief outcome summary:');
   if (outcome === null) return;
-  try { await api('POST',`/api/compliance/dsrs/${id}/close`,{outcome}); toast('DSR closed','ok'); loadDsrs(); } catch(e){toast(e.message,'err');}
+  try { await api('POST',`/api/compliance/dsrs/${id}/close`,{outcome}); toast('DSR closed',false,true); loadDsrs(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Breach ────────────────────────────────────────────────────────────────
@@ -5530,14 +5526,14 @@ async function saveBreach() {
     role: v('breach-role'), containment: v('breach-containment')
   };
   if (!d.description||!d.detected_at) { toast('Description and detection time required','err'); return; }
-  try { await api('POST','/api/compliance/breaches',d); closeModal('modal-breach'); resetForm('modal-breach'); toast('Breach logged','ok'); loadBreaches(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/breaches',d); closeModal('modal-breach'); resetForm('modal-breach'); toast('Breach logged',false,true); loadBreaches(); } catch(e){toast(e.message,'err');}
 }
 
 async function resolveBreachPrompt(id, e) {
   e.stopPropagation();
   const action = prompt('Enter update (e.g. "SA notified", "Resolved", "No notification needed"):');
   if (!action) return;
-  try { await api('PUT',`/api/compliance/breaches/${id}`,{status:'resolved',resolution_note:action,resolved_at:new Date().toISOString()}); toast('Breach updated','ok'); loadBreaches(); } catch(e){toast(e.message,'err');}
+  try { await api('PUT',`/api/compliance/breaches/${id}`,{status:'resolved',resolution_note:action,resolved_at:new Date().toISOString()}); toast('Breach updated',false,true); loadBreaches(); } catch(e){toast(e.message,'err');}
 }
 
 // ── DPIA ─────────────────────────────────────────────────────────────────
@@ -5578,13 +5574,13 @@ function renderDpias(data) {
 async function saveDpia() {
   const d = { activity_name:v('dpia-name'), trigger:v('dpia-trigger'), risk:v('dpia-risk'), ropa_link:v('dpia-ropa-link'), assessor:v('dpia-assessor'), description:v('dpia-description') };
   if (!d.activity_name) { toast('Activity name required','err'); return; }
-  try { await api('POST','/api/compliance/dpias',d); closeModal('modal-dpia'); resetForm('modal-dpia'); toast('DPIA started','ok'); loadDpias(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/dpias',d); closeModal('modal-dpia'); resetForm('modal-dpia'); toast('DPIA started',false,true); loadDpias(); } catch(e){toast(e.message,'err');}
 }
 
 async function advanceDpia(id, e) {
   e.stopPropagation();
   if (!confirm('Advance this DPIA to the next stage?')) return;
-  try { await api('POST',`/api/compliance/dpias/${id}/advance`,{}); toast('DPIA advanced','ok'); loadDpias(); } catch(e){toast(e.message,'err');}
+  try { await api('POST',`/api/compliance/dpias/${id}/advance`,{}); toast('DPIA advanced',false,true); loadDpias(); } catch(e){toast(e.message,'err');}
 }
 
 // ── TIA ──────────────────────────────────────────────────────────────────
@@ -5619,13 +5615,13 @@ function renderTias(data) {
 async function saveTia() {
   const d = { exporter:v('tia-exporter'), importer_name:v('tia-importer'), destination_country:v('tia-country').toUpperCase(), transfer_mechanism:v('tia-mechanism'), data_categories:v('tia-data-cats'), purpose:v('tia-purpose'), risk:v('tia-risk'), reassess_by:v('tia-reassess'), supplementary_measures:v('tia-measures') };
   if (!d.importer_name||!d.destination_country||!d.transfer_mechanism) { toast('Importer, country and mechanism required','err'); return; }
-  try { await api('POST','/api/compliance/tias',d); closeModal('modal-tia'); resetForm('modal-tia'); toast('TIA saved','ok'); loadTias(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/tias',d); closeModal('modal-tia'); resetForm('modal-tia'); toast('TIA saved',false,true); loadTias(); } catch(e){toast(e.message,'err');}
 }
 
 async function deleteTia(id, e) {
   e.stopPropagation();
   if (!confirm('Remove this TIA?')) return;
-  try { await api('DELETE',`/api/compliance/tias/${id}`); toast('TIA removed','ok'); loadTias(); } catch(e){toast(e.message,'err');}
+  try { await api('DELETE',`/api/compliance/tias/${id}`); toast('TIA removed',false,true); loadTias(); } catch(e){toast(e.message,'err');}
 }
 
 // ── DPA ──────────────────────────────────────────────────────────────────
@@ -5657,13 +5653,13 @@ function renderDpas(data) {
 async function saveDpa() {
   const d = { counterparty:v('dpa-counterparty'), our_role:v('dpa-role'), purpose:v('dpa-purpose'), signed:v('dpa-signed'), review_date:v('dpa-review'), tia_ref:v('dpa-tia-ref'), notes:v('dpa-notes') };
   if (!d.counterparty) { toast('Counterparty name required','err'); return; }
-  try { await api('POST','/api/compliance/dpas',d); closeModal('modal-dpa'); resetForm('modal-dpa'); toast('DPA saved','ok'); loadDpas(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/dpas',d); closeModal('modal-dpa'); resetForm('modal-dpa'); toast('DPA saved',false,true); loadDpas(); } catch(e){toast(e.message,'err');}
 }
 
 async function deleteDpa(id, e) {
   e.stopPropagation();
   if (!confirm('Remove this DPA?')) return;
-  try { await api('DELETE',`/api/compliance/dpas/${id}`); toast('DPA removed','ok'); loadDpas(); } catch(e){toast(e.message,'err');}
+  try { await api('DELETE',`/api/compliance/dpas/${id}`); toast('DPA removed',false,true); loadDpas(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Gifts ─────────────────────────────────────────────────────────────────
@@ -5701,11 +5697,11 @@ function renderGifts(data) {
 async function saveGift() {
   const d = { employee_name:v('gift-employee'), direction:v('gift-direction'), gift_type:v('gift-type'), third_party:v('gift-third-party'), country:v('gift-country').toUpperCase(), value:v('gift-value'), gift_date:v('gift-date'), context:v('gift-context'), notes:v('gift-notes') };
   if (!d.employee_name||!d.third_party||!d.value||!d.gift_date) { toast('Employee, third party, value and date required','err'); return; }
-  try { await api('POST','/api/compliance/gifts',d); closeModal('modal-gift'); resetForm('modal-gift'); toast('Gift logged','ok'); loadGifts(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/gifts',d); closeModal('modal-gift'); resetForm('modal-gift'); toast('Gift logged',false,true); loadGifts(); } catch(e){toast(e.message,'err');}
 }
 
-async function approveGift(id, e) { e.stopPropagation(); try { await api('POST',`/api/compliance/gifts/${id}/approve`,{}); toast('Gift approved','ok'); loadGifts(); } catch(e){toast(e.message,'err');} }
-async function declineGift(id, e) { e.stopPropagation(); const note=prompt('Reason for decline:'); if(!note)return; try { await api('POST',`/api/compliance/gifts/${id}/decline`,{note}); toast('Gift declined','ok'); loadGifts(); } catch(e){toast(e.message,'err');} }
+async function approveGift(id, e) { e.stopPropagation(); try { await api('POST',`/api/compliance/gifts/${id}/approve`,{}); toast('Gift approved',false,true); loadGifts(); } catch(e){toast(e.message,'err');} }
+async function declineGift(id, e) { e.stopPropagation(); const note=prompt('Reason for decline:'); if(!note)return; try { await api('POST',`/api/compliance/gifts/${id}/decline`,{note}); toast('Gift declined',false,true); loadGifts(); } catch(e){toast(e.message,'err');} }
 
 // ── COI ──────────────────────────────────────────────────────────────────
 async function loadCoi() {
@@ -5747,7 +5743,7 @@ function toggleCoiConflict(sel) {
 async function saveCoi() {
   const d = { person_name:v('coi-name'), coi_category:v('coi-category'), person_role:v('coi-role'), declaration_year:v('coi-year'), declaration_date:v('coi-date'), conflict_status:v('coi-conflict'), conflict_description:v('coi-conflict-desc'), notes:v('coi-notes') };
   if (!d.person_name||!d.declaration_year) { toast('Name and year required','err'); return; }
-  try { await api('POST','/api/compliance/coi',d); closeModal('modal-coi'); resetForm('modal-coi'); toast('Declaration saved','ok'); loadCoi(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/coi',d); closeModal('modal-coi'); resetForm('modal-coi'); toast('Declaration saved',false,true); loadCoi(); } catch(e){toast(e.message,'err');}
 }
 
 // ── TPDD ─────────────────────────────────────────────────────────────────
@@ -5782,7 +5778,7 @@ function renderTpdd(data) {
 async function saveTpdd() {
   const d = { company_name:v('tpdd-company'), third_party_type:v('tpdd-type'), country:v('tpdd-country').toUpperCase(), dd_level:v('tpdd-dd-level'), last_dd:v('tpdd-last-dd'), next_review:v('tpdd-next-review'), description:v('tpdd-description') };
   if (!d.company_name||!d.country) { toast('Company name and country required','err'); return; }
-  try { await api('POST','/api/compliance/tpdd',d); closeModal('modal-tpdd'); resetForm('modal-tpdd'); toast('Third party added','ok'); loadTpdd(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/tpdd',d); closeModal('modal-tpdd'); resetForm('modal-tpdd'); toast('Third party added',false,true); loadTpdd(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Donations ─────────────────────────────────────────────────────────────
@@ -5813,7 +5809,7 @@ function renderDonations(data) {
 async function saveDonation() {
   const d = { recipient:v('don-recipient'), donation_type:v('don-type'), amount:v('don-amount'), donation_date:v('don-date'), jurisdiction:v('don-jurisdiction'), board_approval_required:v('don-board-approval'), justification:v('don-justification') };
   if (!d.recipient||!d.amount||!d.donation_date) { toast('Recipient, amount and date required','err'); return; }
-  try { await api('POST','/api/compliance/donations',d); closeModal('modal-donation'); resetForm('modal-donation'); toast('Donation logged','ok'); loadDonations(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/donations',d); closeModal('modal-donation'); resetForm('modal-donation'); toast('Donation logged',false,true); loadDonations(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Red Flags ─────────────────────────────────────────────────────────────
@@ -5843,7 +5839,7 @@ function renderFlags(data) {
 async function saveFlag() {
   const d = { description:v('flag-description'), identified_date:v('flag-date'), severity:v('flag-severity'), related_party:v('flag-party'), country:v('flag-country').toUpperCase(), source:v('flag-source') };
   if (!d.description||!d.identified_date) { toast('Description and date required','err'); return; }
-  try { await api('POST','/api/compliance/flags',d); closeModal('modal-flag'); resetForm('modal-flag'); toast('Concern logged','ok'); loadFlags(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/flags',d); closeModal('modal-flag'); resetForm('modal-flag'); toast('Concern logged',false,true); loadFlags(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Whistleblowing ────────────────────────────────────────────────────────
@@ -5885,7 +5881,7 @@ async function saveWb() {
   const d = { category:v('wb-category'), received_date:v('wb-received'), channel:v('wb-channel'), reporter_type:v('wb-reporter-type'), summary:v('wb-summary'), handler:v('wb-handler'), alleged:v('wb-alleged') };
   if (isNamed) { d.reporter_name=v('wb-reporter-name'); d.reporter_contact=v('wb-reporter-contact'); }
   if (!d.category||!d.received_date||!d.summary) { toast('Category, date and summary required','err'); return; }
-  try { await api('POST','/api/compliance/wb',d); closeModal('modal-wb'); resetForm('modal-wb'); toast('Report logged','ok'); loadWb(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/wb',d); closeModal('modal-wb'); resetForm('modal-wb'); toast('Report logged',false,true); loadWb(); } catch(e){toast(e.message,'err');}
 }
 
 async function updateWbStatus(id, e) {
@@ -5893,7 +5889,7 @@ async function updateWbStatus(id, e) {
   const status = prompt('New status (acknowledged / investigating / closed / no_action):');
   if (!status) return;
   const note = prompt('Update note (optional):') || '';
-  try { await api('POST',`/api/compliance/wb/${id}/status`,{status,note}); toast('Status updated','ok'); loadWb(); } catch(e){toast(e.message,'err');}
+  try { await api('POST',`/api/compliance/wb/${id}/status`,{status,note}); toast('Status updated',false,true); loadWb(); } catch(e){toast(e.message,'err');}
 }
 
 function toggleWbReporter(sel) {
@@ -5980,7 +5976,7 @@ async function uploadPolicy() {
     closeModal('modal-upload-policy');
     document.getElementById('upload-file-input').value='';
     document.getElementById('upload-file-label').textContent='Click to choose file';
-    toast('Document uploaded','ok');
+    toast('Document uploaded',false,true);
     loadPolicies(moduleTarget);
   } catch(e) { toast(e.message,'err'); }
 }
@@ -5989,7 +5985,7 @@ async function saveAdviceNote() {
   const moduleTarget = v('advice-module-target');
   const d = { title:v('advice-title'), doc_type:v('advice-type'), module:moduleTarget, content:v('advice-content'), note_date:v('advice-date'), jurisdictions:v('advice-jurisdictions'), in_kb:v('advice-kb')==='yes' };
   if (!d.title||!d.content) { toast('Title and content required','err'); return; }
-  try { await api('POST','/api/compliance/policies',d); closeModal('modal-add-advice'); resetForm('modal-add-advice'); toast('Advice note saved','ok'); loadPolicies(moduleTarget); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/policies',d); closeModal('modal-add-advice'); resetForm('modal-add-advice'); toast('Advice note saved',false,true); loadPolicies(moduleTarget); } catch(e){toast(e.message,'err');}
 }
 
 function openPolicy(id) {
@@ -6035,7 +6031,7 @@ function renderUsers(users) {
 }
 
 async function updateUserRole(userId, role) {
-  try { await api('PUT',`/api/settings/users/${userId}`,{compliance_role:role}); toast('Role updated','ok'); loadUsers(); } catch(e){toast(e.message,'err');}
+  try { await api('PUT',`/api/settings/users/${userId}`,{compliance_role:role}); toast('Role updated',false,true); loadUsers(); } catch(e){toast(e.message,'err');}
 }
 
 async function updateUserModule(userId, module, enabled) {
@@ -6047,20 +6043,20 @@ async function updateUserModule(userId, module, enabled) {
     if (enabled) { if (!mods.includes(module)) mods.push(module); }
     else { mods = mods.filter(m=>m!==module); }
     await api('PUT',`/api/settings/users/${userId}`,{modules:mods});
-    toast('Access updated','ok');
+    toast('Access updated',false,true);
   } catch(e){toast(e.message,'err');}
 }
 
 async function deactivateUser(userId) {
   if (!confirm('Deactivate this user? They will lose all access immediately.')) return;
-  try { await api('POST',`/api/settings/users/${userId}/deactivate`,{}); toast('User deactivated','ok'); loadUsers(); } catch(e){toast(e.message,'err');}
+  try { await api('POST',`/api/settings/users/${userId}/deactivate`,{}); toast('User deactivated',false,true); loadUsers(); } catch(e){toast(e.message,'err');}
 }
 
 async function inviteUser() {
   const mods = ALL_MODULES.filter(m=>document.getElementById('inv-mod-'+m)?.checked);
   const d = { display_name:v('invite-name'), email:v('invite-email'), compliance_role:v('invite-role'), modules:mods };
   if (!d.email) { toast('Email required','err'); return; }
-  try { await api('POST','/api/settings/users/invite',d); closeModal('modal-invite'); resetForm('modal-invite'); toast('Invitation sent','ok'); loadUsers(); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/settings/users/invite',d); closeModal('modal-invite'); resetForm('modal-invite'); toast('Invitation sent',false,true); loadUsers(); } catch(e){toast(e.message,'err');}
 }
 
 // ── Compliance settings ───────────────────────────────────────────────────
@@ -6078,7 +6074,7 @@ async function loadComplianceSettings() {
 
 async function saveComplianceSettings() {
   const d = { primary_jurisdiction:v('setting-primary-jurisdiction'), extra_jurisdictions:v('setting-extra-jurisdictions'), gift_threshold:v('setting-gift-threshold'), gift_autodecline:v('setting-gift-autodecline'), wb_channel:v('setting-wb-channel'), wb_handler:v('setting-wb-handler') };
-  try { await api('POST','/api/compliance/settings',d); toast('Settings saved','ok'); } catch(e){toast(e.message,'err');}
+  try { await api('POST','/api/compliance/settings',d); toast('Settings saved',false,true); } catch(e){toast(e.message,'err');}
 }
 
 // ── Dashboard badges ──────────────────────────────────────────────────────
